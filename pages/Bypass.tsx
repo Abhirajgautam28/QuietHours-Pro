@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, PhoneCall, BellRing, Plus, MoreHorizontal, ChevronRight, Settings2, Trash2, X } from 'lucide-react';
+import { Star, PhoneCall, BellRing, Plus, MoreHorizontal, ChevronRight, Settings2, Trash2, X, User } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { Contact } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -220,80 +220,84 @@ const Bypass: React.FC = () => {
                     onClick={e => e.stopPropagation()}
                     className="w-full max-w-sm bg-white dark:bg-[#121212] border border-white/10 rounded-[32px] p-6 shadow-2xl overflow-hidden"
                 >
-                    <div className="flex justify-between items-center mb-6">
+                    {/* Modal Header */}
+                    <div className="flex justify-between items-center mb-2">
                         <h3 className="text-xl font-light text-zinc-900 dark:text-white">
                             {editingContact ? 'Edit Contact' : 'New Contact'}
                         </h3>
-                         <div className="flex gap-2">
-                             {editingContact && (
-                                <button onClick={handleDelete} className="p-2 bg-rose-50 dark:bg-rose-500/10 rounded-full text-rose-500 dark:text-rose-400">
-                                    <Trash2 size={18} />
-                                </button>
-                             )}
-                            <button onClick={() => setIsModalOpen(false)} className="p-2 bg-zinc-100 dark:bg-[#1C1C1E] rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
-                                <X size={18} />
-                            </button>
-                         </div>
+                        <button onClick={() => setIsModalOpen(false)} className="p-2 bg-zinc-100 dark:bg-[#1C1C1E] rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
+                            <X size={18} />
+                        </button>
+                    </div>
+
+                    {/* Avatar Preview */}
+                    <div className="flex flex-col items-center mb-6">
+                        <motion.div 
+                            layout
+                            className="w-20 h-20 rounded-full bg-zinc-100 dark:bg-[#1C1C1E] flex items-center justify-center text-2xl font-semibold text-zinc-900 dark:text-white mb-2 shadow-inner border border-zinc-100 dark:border-white/5"
+                        >
+                            {name ? name.charAt(0).toUpperCase() : <User size={32} className="text-zinc-300 dark:text-zinc-600" />}
+                        </motion.div>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">{name || 'Contact Name'}</p>
                     </div>
                     
-                    <div className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Contact Name</label>
+                    <div className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest pl-1">Full Name</label>
                             <input 
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-zinc-50 dark:bg-[#1C1C1E] border border-zinc-200 dark:border-white/5 rounded-2xl px-5 py-4 text-zinc-900 dark:text-white text-base focus:outline-none focus:border-indigo-500/50 transition-colors placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
-                                placeholder="e.g. Mom"
+                                className="w-full bg-zinc-50 dark:bg-[#1C1C1E] border border-zinc-200 dark:border-white/5 rounded-2xl px-4 py-3 text-zinc-900 dark:text-white text-base focus:outline-none focus:border-indigo-500/50 transition-colors placeholder:text-zinc-300 dark:placeholder:text-zinc-700"
+                                placeholder="Enter name..."
+                                autoFocus
                             />
                         </div>
 
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-[#1C1C1E] rounded-2xl border border-zinc-200 dark:border-white/5">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-amber-100 dark:bg-amber-500/10 rounded-full text-amber-500 dark:text-amber-400">
-                                        <Star size={18} />
-                                    </div>
-                                    <span className="text-sm font-medium text-zinc-900 dark:text-white">Star Contact</span>
-                                </div>
-                                <button 
-                                    onClick={() => { triggerHaptic(); setIsStarred(!isStarred); }}
-                                    className={`w-12 h-7 rounded-full p-1 transition-colors ${isStarred ? 'bg-amber-500' : 'bg-zinc-300 dark:bg-zinc-800'}`}
-                                >
-                                    <motion.div animate={{ x: isStarred ? 20 : 0 }} className="w-5 h-5 bg-white rounded-full shadow-sm" />
-                                </button>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div 
+                                onClick={() => { triggerHaptic(); setIsStarred(!isStarred); }}
+                                className={`p-3 rounded-2xl border cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-2 ${
+                                    isStarred 
+                                    ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20' 
+                                    : 'bg-zinc-50 dark:bg-[#1C1C1E] border-zinc-200 dark:border-white/5 opacity-70'
+                                }`}
+                            >
+                                <Star size={20} className={isStarred ? 'text-amber-500 fill-amber-500' : 'text-zinc-400'} />
+                                <span className={`text-xs font-medium ${isStarred ? 'text-amber-700 dark:text-amber-400' : 'text-zinc-500'}`}>Favorites</span>
                             </div>
 
-                            <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-[#1C1C1E] rounded-2xl border border-zinc-200 dark:border-white/5">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-emerald-100 dark:bg-emerald-500/10 rounded-full text-emerald-500 dark:text-emerald-400">
-                                        <PhoneCall size={18} />
-                                    </div>
-                                    <span className="text-sm font-medium text-zinc-900 dark:text-white">Repeat Callers</span>
-                                </div>
-                                <button 
-                                    onClick={() => { triggerHaptic(); setAllowRepeated(!allowRepeated); }}
-                                    className={`w-12 h-7 rounded-full p-1 transition-colors ${allowRepeated ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-800'}`}
-                                >
-                                    <motion.div animate={{ x: allowRepeated ? 20 : 0 }} className="w-5 h-5 bg-white rounded-full shadow-sm" />
-                                </button>
+                            <div 
+                                onClick={() => { triggerHaptic(); setAllowRepeated(!allowRepeated); }}
+                                className={`p-3 rounded-2xl border cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-2 ${
+                                    allowRepeated 
+                                    ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20' 
+                                    : 'bg-zinc-50 dark:bg-[#1C1C1E] border-zinc-200 dark:border-white/5 opacity-70'
+                                }`}
+                            >
+                                <PhoneCall size={20} className={allowRepeated ? 'text-emerald-500' : 'text-zinc-400'} />
+                                <span className={`text-xs font-medium ${allowRepeated ? 'text-emerald-700 dark:text-emerald-400' : 'text-zinc-500'}`}>Repeated Calls</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex gap-3 mt-10">
-                        <button 
-                            onClick={() => setIsModalOpen(false)}
-                            className="flex-1 py-4 rounded-full text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors hover:bg-zinc-100 dark:hover:bg-white/5"
-                        >
-                            Cancel
-                        </button>
+                    <div className="flex flex-col gap-3 mt-8">
                         <button 
                             onClick={handleSave}
-                            className="flex-1 py-4 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-bold shadow-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
+                            className="w-full py-4 rounded-[20px] bg-zinc-900 dark:bg-white text-white dark:text-black text-sm font-bold shadow-lg hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
                         >
-                            Save
+                            Save Contact
                         </button>
+                        
+                        {editingContact && (
+                            <button 
+                                onClick={handleDelete}
+                                className="w-full py-3 rounded-[20px] text-rose-500 dark:text-rose-400 text-sm font-semibold hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <Trash2 size={16} />
+                                Remove Contact
+                            </button>
+                        )}
                     </div>
                 </motion.div>
             </motion.div>
