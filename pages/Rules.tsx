@@ -188,7 +188,7 @@ const Rules: React.FC = () => {
                 whileHover={{ scale: 1.005 }}
                 whileTap={{ scale: 0.99 }}
                 transition={{ 
-                    layout: { type: "spring", stiffness: 300, damping: 30 },
+                    layout: { type: "spring", stiffness: 350, damping: 25 },
                     opacity: { duration: 0.2 }
                 }}
                 onClick={(e) => handleCardClick(rule.id, e)}
@@ -198,7 +198,11 @@ const Rules: React.FC = () => {
                         : 'bg-zinc-50 dark:bg-black border-zinc-100 dark:border-zinc-800/50 hover:bg-white dark:hover:bg-[#0a0a0a] hover:border-zinc-200 dark:hover:border-zinc-800'
                 } ${isExpanded ? 'ring-1 ring-indigo-500/30 dark:ring-indigo-500/20' : ''}`}
               >
-                <div className="p-4 flex items-center gap-4 relative z-10">
+                {/* Header Container - using layout="position" to stay anchored during expansion */}
+                <motion.div 
+                    layout="position"
+                    className="p-4 flex items-center gap-4 relative z-10"
+                >
                   {/* Icon Container */}
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-300 shrink-0 ${
                       rule.isActive 
@@ -240,25 +244,22 @@ const Rules: React.FC = () => {
                         className="w-5 h-5 bg-white rounded-full shadow-sm"
                     />
                   </button>
-                </div>
+                </motion.div>
 
-                <AnimatePresence>
+                <AnimatePresence initial={false}>
                     {isExpanded && (
                         <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ 
-                                height: { type: "spring", stiffness: 400, damping: 30, mass: 0.8 },
-                                opacity: { duration: 0.2, delay: 0.05 } 
-                            }}
+                            initial={{ height: 0 }}
+                            animate={{ height: "auto" }}
+                            exit={{ height: 0 }}
+                            transition={{ type: "spring", stiffness: 350, damping: 25 }}
                             className="overflow-hidden bg-zinc-50/50 dark:bg-[#18181b]/50 border-t border-zinc-100 dark:border-white/5"
                         >
                             <motion.div 
                                 initial={{ y: -10, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: -10, opacity: 0 }}
-                                transition={{ duration: 0.3, ease: "easeOut" }}
+                                transition={{ duration: 0.2, delay: 0.1 }}
                                 className="p-4 pt-3 space-y-4"
                             >
                                 <div className="space-y-3">
