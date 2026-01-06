@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { Rule, NotificationGroup, Contact } from '../types';
 import { Mail, MessageSquare, Phone, Calendar } from 'lucide-react';
 
+export type ThemeOption = 'system' | 'dark' | 'light';
+
 interface AppState {
   isDndActive: boolean;
   setDndActive: (active: boolean) => void;
@@ -26,6 +28,10 @@ interface AppState {
 
   hasSeenOnboarding: boolean;
   completeOnboarding: () => void;
+
+  theme: ThemeOption;
+  setTheme: (theme: ThemeOption) => void;
+  triggerHaptic: () => void;
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -71,6 +77,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [notifications] = useState<NotificationGroup[]>(INITIAL_NOTIFICATIONS);
   const [isPro, setPro] = useState(false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  const [theme, setTheme] = useState<ThemeOption>('system');
   
   const [contacts, setContacts] = useState<Contact[]>([
     { id: '1', name: 'Mom', isStarred: true, allowRepeated: true },
@@ -88,16 +95,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, []);
 
+  const triggerHaptic = () => {
+    if (navigator.vibrate) {
+      navigator.vibrate(10); // Light tap
+    }
+  };
+
   const completeOnboarding = () => {
     setHasSeenOnboarding(true);
     localStorage.setItem('quiet_hours_onboarding', 'true');
   };
 
   const toggleRule = (id: string) => {
+    triggerHaptic();
     setRules(prev => prev.map(r => r.id === id ? { ...r, isActive: !r.isActive } : r));
   };
 
   const deleteRule = (id: string) => {
+    triggerHaptic();
     setRules(prev => prev.filter(r => r.id !== id));
   };
 
@@ -118,6 +133,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const deleteContact = (id: string) => {
+    triggerHaptic();
     setContacts(prev => prev.filter(c => c.id !== id));
   };
 
@@ -140,7 +156,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       isPro,
       setPro,
       hasSeenOnboarding,
-      completeOnboarding
+      completeOnboarding,
+      theme,
+      setTheme,
+      triggerHaptic
     }}>
       {children}
     </AppContext.Provider>
