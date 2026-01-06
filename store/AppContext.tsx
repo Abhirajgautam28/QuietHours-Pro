@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Rule, NotificationGroup, Contact } from '../types';
 import { Mail, MessageSquare, Phone, Calendar } from 'lucide-react';
 
@@ -7,14 +7,25 @@ interface AppState {
   setDndActive: (active: boolean) => void;
   dndEndTime: Date | null;
   setDndEndTime: (date: Date | null) => void;
+  
   rules: Rule[];
   toggleRule: (id: string) => void;
   deleteRule: (id: string) => void;
   addRule: (rule: Rule) => void;
+  updateRule: (rule: Rule) => void;
+  
   notifications: NotificationGroup[];
+  
   contacts: Contact[];
+  addContact: (contact: Contact) => void;
+  updateContact: (contact: Contact) => void;
+  deleteContact: (id: string) => void;
+
   isPro: boolean;
   setPro: (isPro: boolean) => void;
+
+  hasSeenOnboarding: boolean;
+  completeOnboarding: () => void;
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -59,13 +70,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [rules, setRules] = useState<Rule[]>(INITIAL_RULES);
   const [notifications] = useState<NotificationGroup[]>(INITIAL_NOTIFICATIONS);
   const [isPro, setPro] = useState(false);
-  const [contacts] = useState<Contact[]>([
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  
+  const [contacts, setContacts] = useState<Contact[]>([
     { id: '1', name: 'Mom', isStarred: true, allowRepeated: true },
     { id: '2', name: 'Partner', isStarred: true, allowRepeated: true },
     { id: '3', name: 'Boss', isStarred: false, allowRepeated: true },
     { id: '4', name: 'Gym Buddy', isStarred: false, allowRepeated: false },
     { id: '5', name: 'Doctor', isStarred: true, allowRepeated: true },
   ]);
+
+  // Simulate checking local storage
+  useEffect(() => {
+    const seen = localStorage.getItem('quiet_hours_onboarding');
+    if (seen === 'true') {
+      setHasSeenOnboarding(true);
+    }
+  }, []);
+
+  const completeOnboarding = () => {
+    setHasSeenOnboarding(true);
+    localStorage.setItem('quiet_hours_onboarding', 'true');
+  };
 
   const toggleRule = (id: string) => {
     setRules(prev => prev.map(r => r.id === id ? { ...r, isActive: !r.isActive } : r));
@@ -79,6 +105,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setRules(prev => [...prev, rule]);
   };
 
+  const updateRule = (updatedRule: Rule) => {
+    setRules(prev => prev.map(r => r.id === updatedRule.id ? updatedRule : r));
+  };
+
+  const addContact = (contact: Contact) => {
+    setContacts(prev => [...prev, contact]);
+  };
+
+  const updateContact = (updatedContact: Contact) => {
+    setContacts(prev => prev.map(c => c.id === updatedContact.id ? updatedContact : c));
+  };
+
+  const deleteContact = (id: string) => {
+    setContacts(prev => prev.filter(c => c.id !== id));
+  };
+
   return (
     <AppContext.Provider value={{
       isDndActive,
@@ -89,10 +131,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       toggleRule,
       deleteRule,
       addRule,
+      updateRule,
       notifications,
       contacts,
+      addContact,
+      updateContact,
+      deleteContact,
       isPro,
-      setPro
+      setPro,
+      hasSeenOnboarding,
+      completeOnboarding
     }}>
       {children}
     </AppContext.Provider>

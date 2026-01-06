@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Wifi, Calendar, Clock, Plus, Trash2, Edit2, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { MapPin, Wifi, Calendar, Clock, Plus, Trash2, Edit2, X, Check } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { Rule } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,13 +21,65 @@ const RuleIcon = ({ type, isActive }: { type: Rule['type'], isActive: boolean })
 };
 
 const Rules: React.FC = () => {
-  const { rules, toggleRule, isPro } = useApp();
+  const { rules, toggleRule, addRule, updateRule, deleteRule, isPro } = useApp();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingRule, setEditingRule] = useState<Rule | null>(null);
+  
+  // Form State
+  const [name, setName] = useState('');
+  const [type, setType] = useState<Rule['type']>('TIME');
+  const [description, setDescription] = useState('');
 
   const handleCardClick = (id: string, e: React.MouseEvent) => {
-    // Prevent expanding if clicking the toggle switch
     if ((e.target as HTMLElement).closest('button[role="switch"]')) return;
     setExpandedId(expandedId === id ? null : id);
+  };
+
+  const openAddModal = () => {
+    setEditingRule(null);
+    setName('');
+    setType('TIME');
+    setDescription('');
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (rule: Rule) => {
+    setEditingRule(rule);
+    setName(rule.name);
+    setType(rule.type);
+    setDescription(rule.description);
+    setIsModalOpen(true);
+    setExpandedId(null); // Close the expansion
+  };
+
+  const handleSave = () => {
+    if (!name || !description) return;
+    
+    if (editingRule) {
+      updateRule({
+        ...editingRule,
+        name,
+        type,
+        description
+      });
+    } else {
+      addRule({
+        id: Date.now().toString(),
+        name,
+        type,
+        isActive: true,
+        description
+      });
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteRule(id);
+    setExpandedId(null);
   };
 
   return (
@@ -44,7 +96,6 @@ const Rules: React.FC = () => {
         >
             <div className="p-6 bg-[#121212] rounded-[32px] border border-indigo-500/20 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/10 blur-[50px] rounded-full pointer-events-none" />
-                
                 <div className="relative z-10">
                     <div className="flex items-center gap-2 mb-3">
                         <div className="px-2 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-500/20">
@@ -89,7 +140,6 @@ const Rules: React.FC = () => {
                         : 'bg-black border-zinc-900'
                 } ${isExpanded ? 'ring-1 ring-indigo-500/30' : ''}`}
               >
-                {/* Main Card Content */}
                 <div className="p-5 flex items-center gap-5">
                   <div className={`w-14 h-14 rounded-[24px] flex items-center justify-center transition-colors duration-300 ${
                       rule.isActive ? 'bg-[#1C1C1E]' : 'bg-[#0a0a0a] border border-white/5'
@@ -104,7 +154,6 @@ const Rules: React.FC = () => {
                     <p className="text-xs text-zinc-600 truncate">{rule.description}</p>
                   </div>
 
-                  {/* Custom Switch */}
                   <button 
                     role="switch"
                     onClick={(e) => {
@@ -124,7 +173,6 @@ const Rules: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Expanded Details */}
                 <AnimatePresence>
                     {isExpanded && (
                         <motion.div
@@ -152,11 +200,17 @@ const Rules: React.FC = () => {
                                 </div>
 
                                 <div className="flex gap-3 pt-2">
-                                    <button className="flex-1 h-10 bg-[#1C1C1E] rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-white hover:bg-[#252525] transition-colors border border-white/5">
+                                    <button 
+                                      onClick={() => openEditModal(rule)}
+                                      className="flex-1 h-10 bg-[#1C1C1E] rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-white hover:bg-[#252525] transition-colors border border-white/5"
+                                    >
                                         <Edit2 size={14} className="text-zinc-400" />
                                         Edit
                                     </button>
-                                    <button className="flex-1 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-rose-400 hover:bg-rose-500/20 transition-colors border border-rose-500/10">
+                                    <button 
+                                      onClick={() => handleDelete(rule.id)}
+                                      className="flex-1 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-rose-400 hover:bg-rose-500/20 transition-colors border border-rose-500/10"
+                                    >
                                         <Trash2 size={14} />
                                         Delete
                                     </button>
@@ -172,18 +226,103 @@ const Rules: React.FC = () => {
 
       {/* Morphing FAB */}
       <motion.button 
-        whileHover={{ scale: 1.05 }}
+        onClick={() => {
+            if (isModalOpen) setIsModalOpen(false);
+            else openAddModal();
+        }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-28 right-6 w-16 h-16 bg-white rounded-[24px] text-black shadow-2xl flex items-center justify-center z-30 group"
+        className="fixed bottom-28 right-6 w-16 h-16 bg-white rounded-[24px] text-black shadow-2xl flex items-center justify-center z-30 group overflow-hidden"
       >
         <motion.div
-            animate={{ rotate: 0 }}
-            whileTap={{ rotate: 90 }}
+            animate={{ rotate: isModalOpen ? 135 : 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
              <Plus size={30} strokeWidth={2} />
         </motion.div>
       </motion.button>
+
+      {/* Add/Edit Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+                onClick={() => setIsModalOpen(false)}
+            >
+                <motion.div
+                    initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                    animate={{ scale: 1, y: 0, opacity: 1 }}
+                    exit={{ scale: 0.9, y: 20, opacity: 0 }}
+                    onClick={e => e.stopPropagation()}
+                    className="w-full max-w-sm bg-[#121212] border border-white/10 rounded-[32px] p-6 shadow-2xl"
+                >
+                    <h3 className="text-xl font-light text-white mb-6">
+                        {editingRule ? 'Edit Rule' : 'New Automation'}
+                    </h3>
+                    
+                    <div className="space-y-5">
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Rule Name</label>
+                            <input 
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="w-full bg-[#1C1C1E] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-colors placeholder:text-zinc-600"
+                                placeholder="e.g. Work Mode"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Trigger Type</label>
+                            <div className="grid grid-cols-4 gap-2">
+                                {(['TIME', 'LOCATION', 'WIFI', 'CALENDAR'] as const).map(t => (
+                                    <button
+                                        key={t}
+                                        onClick={() => setType(t)}
+                                        className={`h-10 rounded-xl flex items-center justify-center border transition-colors ${
+                                            type === t 
+                                            ? 'bg-indigo-500 border-indigo-500 text-white' 
+                                            : 'bg-[#1C1C1E] border-white/5 text-zinc-400 hover:bg-[#252525]'
+                                        }`}
+                                    >
+                                        <RuleIcon type={t} isActive={type === t} />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Description</label>
+                            <input 
+                                type="text"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                className="w-full bg-[#1C1C1E] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-colors placeholder:text-zinc-600"
+                                placeholder="e.g. 9:00 AM - 5:00 PM"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-8">
+                        <button 
+                            onClick={() => setIsModalOpen(false)}
+                            className="flex-1 py-3 rounded-full text-sm font-semibold text-zinc-400 hover:text-white transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            onClick={handleSave}
+                            className="flex-1 py-3 rounded-full bg-white text-black text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors"
+                        >
+                            Save Rule
+                        </button>
+                    </div>
+                </motion.div>
+            </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

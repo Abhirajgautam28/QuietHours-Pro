@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppProvider } from './store/AppContext';
+import { AppProvider, useApp } from './store/AppContext';
 import { AppRoute } from './types';
 import Header from './components/Header';
 import BottomNav from './components/BottomNav';
@@ -8,10 +8,12 @@ import Rules from './pages/Rules';
 import Bypass from './pages/Bypass';
 import Digest from './pages/Digest';
 import Pro from './pages/Pro';
+import Onboarding from './components/Onboarding';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const MainLayout: React.FC = () => {
   const [currentRoute, setCurrentRoute] = useState<AppRoute>(AppRoute.HOME);
+  const { hasSeenOnboarding } = useApp();
 
   const renderScreen = () => {
     switch (currentRoute) {
@@ -39,6 +41,10 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-0 md:p-8 font-sans selection:bg-indigo-500/30">
+      <AnimatePresence>
+        {!hasSeenOnboarding && <Onboarding />}
+      </AnimatePresence>
+
       {/* Phone Frame - High Fidelity */}
       <div className="w-full h-screen md:h-[844px] md:w-[390px] bg-black md:rounded-[48px] md:border-[6px] md:border-[#1a1a1a] shadow-2xl relative overflow-hidden flex flex-col ring-1 ring-white/10">
         

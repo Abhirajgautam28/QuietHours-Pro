@@ -1,13 +1,67 @@
-import React from 'react';
-import { Star, PhoneCall, BellRing, Plus, MoreHorizontal, ChevronRight, Settings2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, PhoneCall, BellRing, Plus, MoreHorizontal, ChevronRight, Settings2, Trash2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
-import { motion } from 'framer-motion';
+import { Contact } from '../types';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Bypass: React.FC = () => {
-  const { contacts, isPro } = useApp();
+  const { contacts, isPro, addContact, updateContact, deleteContact } = useApp();
+  
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  
+  // Form State
+  const [name, setName] = useState('');
+  const [isStarred, setIsStarred] = useState(true);
+  const [allowRepeated, setAllowRepeated] = useState(true);
+
+  const openAddModal = () => {
+    setEditingContact(null);
+    setName('');
+    setIsStarred(true);
+    setAllowRepeated(true);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (contact: Contact) => {
+    setEditingContact(contact);
+    setName(contact.name);
+    setIsStarred(contact.isStarred);
+    setAllowRepeated(contact.allowRepeated);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!name) return;
+    
+    if (editingContact) {
+        updateContact({
+            ...editingContact,
+            name,
+            isStarred,
+            allowRepeated
+        });
+    } else {
+        addContact({
+            id: Date.now().toString(),
+            name,
+            isStarred,
+            allowRepeated
+        });
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = () => {
+    if (editingContact) {
+        deleteContact(editingContact.id);
+        setIsModalOpen(false);
+    }
+  };
 
   return (
-    <div className="pt-6 pb-32 h-full overflow-y-auto no-scrollbar bg-black">
+    <div className="pt-6 pb-32 h-full overflow-y-auto no-scrollbar bg-black relative">
       
       {/* Hero Section */}
       <div className="px-6 mb-8">
@@ -18,6 +72,7 @@ const Bypass: React.FC = () => {
              <div className="flex gap-5 overflow-x-auto px-6 pb-6 no-scrollbar snap-x">
                 <motion.button 
                     whileTap={{ scale: 0.95 }}
+                    onClick={openAddModal}
                     className="flex flex-col items-center gap-3 min-w-[72px] snap-start"
                 >
                     <div className="w-[72px] h-[72px] rounded-full bg-[#121212] border border-zinc-800 border-dashed flex items-center justify-center text-zinc-500 hover:bg-[#1C1C1E] hover:border-zinc-600 transition-all">
@@ -33,8 +88,9 @@ const Bypass: React.FC = () => {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.05 }}
                         className="flex flex-col items-center gap-3 min-w-[72px] snap-start relative group"
+                        onClick={() => openEditModal(contact)}
                     >
-                        <div className="relative">
+                        <div className="relative cursor-pointer">
                             <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-b from-[#2C2C2E] to-[#1C1C1E] flex items-center justify-center text-white text-xl font-medium shadow-lg border border-white/5 group-hover:border-white/20 transition-colors">
                                 {contact.name.charAt(0)}
                             </div>
@@ -111,6 +167,101 @@ const Bypass: React.FC = () => {
             </button>
         </div>
       </div>
+
+      {/* Add/Edit Contact Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 bg-black/80 backdrop-blur-sm"
+                onClick={() => setIsModalOpen(false)}
+            >
+                <motion.div
+                    initial={{ y: "100%" }}
+                    animate={{ y: 0 }}
+                    exit={{ y: "100%" }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    onClick={e => e.stopPropagation()}
+                    className="w-full md:max-w-sm bg-[#121212] border-t md:border border-white/10 rounded-t-[32px] md:rounded-[32px] p-8 shadow-2xl"
+                >
+                    <div className="w-12 h-1 bg-zinc-800 rounded-full mx-auto mb-8 md:hidden" />
+                    
+                    <div className="flex justify-between items-start mb-6">
+                        <h3 className="text-xl font-light text-white">
+                            {editingContact ? 'Edit Contact' : 'New Contact'}
+                        </h3>
+                        {editingContact && (
+                             <button onClick={handleDelete} className="p-2 bg-rose-500/10 rounded-full text-rose-400">
+                                <Trash2 size={18} />
+                            </button>
+                        )}
+                    </div>
+                    
+                    <div className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Contact Name</label>
+                            <input 
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="w-full bg-[#1C1C1E] border border-white/5 rounded-2xl px-5 py-4 text-white text-base focus:outline-none focus:border-indigo-500/50 transition-colors placeholder:text-zinc-600"
+                                placeholder="e.g. Mom"
+                            />
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between p-4 bg-[#1C1C1E] rounded-2xl border border-white/5">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-amber-500/10 rounded-full text-amber-400">
+                                        <Star size={18} />
+                                    </div>
+                                    <span className="text-sm font-medium text-white">Star Contact</span>
+                                </div>
+                                <button 
+                                    onClick={() => setIsStarred(!isStarred)}
+                                    className={`w-12 h-7 rounded-full p-1 transition-colors ${isStarred ? 'bg-amber-500' : 'bg-zinc-800'}`}
+                                >
+                                    <motion.div animate={{ x: isStarred ? 20 : 0 }} className="w-5 h-5 bg-white rounded-full shadow-sm" />
+                                </button>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 bg-[#1C1C1E] rounded-2xl border border-white/5">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-emerald-500/10 rounded-full text-emerald-400">
+                                        <PhoneCall size={18} />
+                                    </div>
+                                    <span className="text-sm font-medium text-white">Repeat Callers</span>
+                                </div>
+                                <button 
+                                    onClick={() => setAllowRepeated(!allowRepeated)}
+                                    className={`w-12 h-7 rounded-full p-1 transition-colors ${allowRepeated ? 'bg-emerald-500' : 'bg-zinc-800'}`}
+                                >
+                                    <motion.div animate={{ x: allowRepeated ? 20 : 0 }} className="w-5 h-5 bg-white rounded-full shadow-sm" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-10">
+                        <button 
+                            onClick={() => setIsModalOpen(false)}
+                            className="flex-1 py-4 rounded-full text-sm font-semibold text-zinc-400 hover:text-white transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            onClick={handleSave}
+                            className="flex-1 py-4 rounded-full bg-white text-black text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors"
+                        >
+                            Save
+                        </button>
+                    </div>
+                </motion.div>
+            </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
