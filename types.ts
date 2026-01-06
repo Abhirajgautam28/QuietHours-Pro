@@ -9,12 +9,21 @@ export enum AppRoute {
   SETTINGS = 'settings'
 }
 
+export interface RuleConfig {
+  timeStart?: string;
+  timeEnd?: string;
+  location?: string;
+  wifi?: string;
+  calendar?: string;
+}
+
 export interface Rule {
   id: string;
   name: string;
   type: 'LOCATION' | 'WIFI' | 'CALENDAR' | 'TIME';
   isActive: boolean;
   description: string;
+  config: RuleConfig;
 }
 
 export interface NotificationGroup {

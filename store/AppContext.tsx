@@ -37,10 +37,54 @@ interface AppState {
 const AppContext = createContext<AppState | undefined>(undefined);
 
 const INITIAL_RULES: Rule[] = [
-  { id: '1', name: 'Work Office', type: 'LOCATION', isActive: true, description: 'Arriving at 123 Business Rd' },
-  { id: '2', name: 'Office WiFi', type: 'WIFI', isActive: false, description: 'Connected to "CorpNet_5G"' },
-  { id: '3', name: 'Sleeping', type: 'TIME', isActive: true, description: 'Every day 10:00 PM - 7:00 AM' },
-  { id: '4', name: 'Meetings', type: 'CALENDAR', isActive: true, description: 'During events marked "Busy"' },
+  { 
+    id: '1', 
+    name: 'Work Office', 
+    type: 'LOCATION', 
+    isActive: true, 
+    description: 'Arriving at 123 Business Rd',
+    config: { location: '123 Business Rd' }
+  },
+  { 
+    id: '2', 
+    name: 'Office WiFi', 
+    type: 'WIFI', 
+    isActive: false, 
+    description: 'Connected to "CorpNet_5G"',
+    config: { wifi: 'CorpNet_5G' }
+  },
+  { 
+    id: '3', 
+    name: 'Sleeping', 
+    type: 'TIME', 
+    isActive: true, 
+    description: 'Every day 10:00 PM - 7:00 AM',
+    config: { timeStart: '22:00', timeEnd: '07:00' }
+  },
+  { 
+    id: '4', 
+    name: 'Meetings', 
+    type: 'CALENDAR', 
+    isActive: true, 
+    description: 'During events marked "Busy"',
+    config: { calendar: 'Busy' }
+  },
+  { 
+    id: '5', 
+    name: 'Gym Mode', 
+    type: 'LOCATION', 
+    isActive: false, 
+    description: 'Arriving at Planet Fitness',
+    config: { location: 'Planet Fitness' }
+  },
+  { 
+    id: '6', 
+    name: 'Home Network', 
+    type: 'WIFI', 
+    isActive: true, 
+    description: 'Connected to "MyHome_Network"',
+    config: { wifi: 'MyHome_Network' }
+  },
 ];
 
 const INITIAL_NOTIFICATIONS: NotificationGroup[] = [

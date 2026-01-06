@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Wifi, Calendar, Clock, Plus, Trash2, Edit2, X, Check } from 'lucide-react';
 import { useApp } from '../store/AppContext';
-import { Rule } from '../types';
+import { Rule, RuleConfig } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const RuleIcon = ({ type, isActive }: { type: Rule['type'], isActive: boolean }) => {
@@ -33,7 +33,7 @@ const Rules: React.FC = () => {
   const [type, setType] = useState<Rule['type']>('TIME');
   
   // Dynamic Config State
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<RuleConfig>({
     timeStart: '22:00',
     timeEnd: '07:00',
     location: '',
@@ -66,28 +66,25 @@ const Rules: React.FC = () => {
     setName(rule.name);
     setType(rule.type);
     
-    let newConfig = { ...config };
-    if (rule.type === 'WIFI') {
-        const match = rule.description.match(/"([^"]+)"/);
-        if (match) newConfig.wifi = match[1];
-    } else if (rule.type === 'LOCATION') {
-        const match = rule.description.replace('Arriving at ', '');
-        newConfig.location = match;
-    } else if (rule.type === 'CALENDAR') {
-        const match = rule.description.match(/"([^"]+)"/);
-        if (match) newConfig.calendar = match[1];
-    }
-    setConfig(newConfig);
+    // Populate config from the structured rule object, falling back to defaults
+    setConfig({
+        timeStart: rule.config.timeStart || '22:00',
+        timeEnd: rule.config.timeEnd || '07:00',
+        location: rule.config.location || '',
+        wifi: rule.config.wifi || '',
+        calendar: rule.config.calendar || ''
+    });
+
     setIsModalOpen(true);
     setExpandedId(null);
   };
 
-  const generateDescription = () => {
-      switch(type) {
-        case 'TIME': return `Every day ${config.timeStart} - ${config.timeEnd}`;
-        case 'LOCATION': return `Arriving at ${config.location || 'Selected Location'}`;
-        case 'WIFI': return `Connected to "${config.wifi || 'WiFi Network'}"`;
-        case 'CALENDAR': return `During events marked "${config.calendar || 'Busy'}"`;
+  const generateDescription = (currentType: Rule['type'], currentConfig: RuleConfig) => {
+      switch(currentType) {
+        case 'TIME': return `Every day ${currentConfig.timeStart} - ${currentConfig.timeEnd}`;
+        case 'LOCATION': return `Arriving at ${currentConfig.location || 'Selected Location'}`;
+        case 'WIFI': return `Connected to "${currentConfig.wifi || 'WiFi Network'}"`;
+        case 'CALENDAR': return `During events marked "${currentConfig.calendar || 'Busy'}"`;
         default: return '';
       }
   };
@@ -96,14 +93,22 @@ const Rules: React.FC = () => {
     triggerHaptic();
     if (!name) return;
     
-    const description = generateDescription();
+    // Extract only relevant config based on type to keep it clean
+    const relevantConfig: RuleConfig = {};
+    if (type === 'TIME') { relevantConfig.timeStart = config.timeStart; relevantConfig.timeEnd = config.timeEnd; }
+    if (type === 'LOCATION') { relevantConfig.location = config.location; }
+    if (type === 'WIFI') { relevantConfig.wifi = config.wifi; }
+    if (type === 'CALENDAR') { relevantConfig.calendar = config.calendar; }
+
+    const description = generateDescription(type, relevantConfig);
 
     if (editingRule) {
       updateRule({
         ...editingRule,
         name,
         type,
-        description
+        description,
+        config: relevantConfig
       });
     } else {
       addRule({
@@ -111,7 +116,8 @@ const Rules: React.FC = () => {
         name,
         type,
         isActive: true,
-        description
+        description,
+        config: relevantConfig
       });
     }
     setIsModalOpen(false);
@@ -414,7 +420,7 @@ const Rules: React.FC = () => {
                             
                             <div className="pt-2 pb-1">
                                 <p className="text-[11px] text-zinc-500 leading-tight">
-                                    Rule will activate: <span className="text-indigo-500 dark:text-indigo-400">{generateDescription()}</span>
+                                    Rule will activate: <span className="text-indigo-500 dark:text-indigo-400">{generateDescription(type, config)}</span>
                                 </p>
                             </div>
                         </div>
