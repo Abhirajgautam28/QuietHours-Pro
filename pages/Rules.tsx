@@ -180,7 +180,7 @@ const Rules: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 onClick={(e) => handleCardClick(rule.id, e)}
-                className={`group relative overflow-hidden rounded-[32px] transition-all duration-500 border cursor-pointer ${
+                className={`group relative overflow-hidden rounded-[32px] transition-all duration-300 border cursor-pointer ${
                     rule.isActive 
                         ? 'bg-white dark:bg-[#101010] border-zinc-200 dark:border-white/10 shadow-lg dark:shadow-none' 
                         : 'bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-900'
@@ -225,6 +225,7 @@ const Rules: React.FC = () => {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
                             className="bg-zinc-50 dark:bg-[#151515] border-t border-zinc-100 dark:border-white/5"
                         >
                             <div className="p-5 pt-4 space-y-4">
@@ -278,10 +279,13 @@ const Rules: React.FC = () => {
             else openAddModal();
         }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-28 right-6 w-16 h-16 bg-zinc-900 dark:bg-white rounded-[24px] text-white dark:text-black shadow-2xl flex items-center justify-center z-30 group overflow-hidden"
+        animate={{ 
+            backgroundColor: isModalOpen ? '#27272a' : '#18181b', // Zinc-800 : Zinc-900 (Darker for add)
+        }}
+        className={`fixed bottom-28 right-6 w-16 h-16 rounded-[24px] shadow-2xl flex items-center justify-center z-30 group overflow-hidden ${isModalOpen ? 'text-zinc-400' : 'text-white'}`}
       >
         <motion.div
-            animate={{ rotate: isModalOpen ? 135 : 0 }}
+            animate={{ rotate: isModalOpen ? 45 : 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
              <Plus size={30} strokeWidth={2} />

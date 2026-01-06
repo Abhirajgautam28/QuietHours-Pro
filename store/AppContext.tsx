@@ -85,6 +85,14 @@ const INITIAL_RULES: Rule[] = [
     description: 'Connected to "MyHome_Network"',
     config: { wifi: 'MyHome_Network' }
   },
+  { 
+    id: '7', 
+    name: 'Work Hours', 
+    type: 'TIME', 
+    isActive: false, 
+    description: 'Every day 09:00 AM - 05:00 PM',
+    config: { timeStart: '09:00', timeEnd: '17:00' }
+  },
 ];
 
 const INITIAL_NOTIFICATIONS: NotificationGroup[] = [
