@@ -188,7 +188,7 @@ const Rules: React.FC = () => {
                 whileHover={{ scale: 1.005 }}
                 whileTap={{ scale: 0.99 }}
                 transition={{ 
-                    layout: { type: "spring", stiffness: 350, damping: 25 },
+                    layout: { type: "spring", stiffness: 400, damping: 30 },
                     opacity: { duration: 0.2 }
                 }}
                 onClick={(e) => handleCardClick(rule.id, e)}
@@ -246,20 +246,23 @@ const Rules: React.FC = () => {
                   </button>
                 </motion.div>
 
-                <AnimatePresence initial={false}>
+                <AnimatePresence>
                     {isExpanded && (
                         <motion.div
-                            initial={{ height: 0 }}
-                            animate={{ height: "auto" }}
-                            exit={{ height: 0 }}
-                            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ 
+                                height: { type: "spring", stiffness: 400, damping: 30 },
+                                opacity: { duration: 0.2 }
+                            }}
                             className="overflow-hidden bg-zinc-50/50 dark:bg-[#18181b]/50 border-t border-zinc-100 dark:border-white/5"
                         >
                             <motion.div 
                                 initial={{ y: -10, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: -10, opacity: 0 }}
-                                transition={{ duration: 0.2, delay: 0.1 }}
+                                transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
                                 className="p-4 pt-3 space-y-4"
                             >
                                 <div className="space-y-3">

@@ -16,19 +16,30 @@ const MainLayout: React.FC = () => {
   const [currentRoute, setCurrentRoute] = useState<AppRoute>(AppRoute.HOME);
   const { hasSeenOnboarding, theme } = useApp();
 
-  // Apply Theme Class to Root
+  // Apply Theme Class to Root and Update Android Status Bar
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('dark', 'light');
     
+    let isDark = false;
+    
     if (theme === 'system') {
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             root.classList.add('dark');
+            isDark = true;
         } else {
              root.classList.add('light');
+             isDark = false;
         }
     } else {
         root.classList.add(theme);
+        isDark = theme === 'dark';
+    }
+
+    // Update Android Status Bar Color
+    const metaThemeColor = document.querySelector("meta[name=theme-color]");
+    if (metaThemeColor) {
+        metaThemeColor.setAttribute("content", isDark ? "#000000" : "#ffffff");
     }
   }, [theme]);
 

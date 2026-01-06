@@ -93,6 +93,14 @@ const INITIAL_RULES: Rule[] = [
     description: 'Every day 09:00 AM - 05:00 PM',
     config: { timeStart: '09:00', timeEnd: '17:00' }
   },
+  { 
+    id: '8', 
+    name: 'Focus Zone', 
+    type: 'LOCATION', 
+    isActive: false, 
+    description: 'Arriving at [Location Name]',
+    config: { location: '[Location Name]' }
+  },
 ];
 
 const INITIAL_NOTIFICATIONS: NotificationGroup[] = [
