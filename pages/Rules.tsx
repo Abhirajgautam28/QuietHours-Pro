@@ -296,23 +296,24 @@ const Rules: React.FC = () => {
             if (isModalOpen) setIsModalOpen(false);
             else openAddModal();
         }}
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.92 }}
         whileHover={{ scale: 1.05 }}
         animate={{ 
-            backgroundColor: isModalOpen ? '#27272a' : '#18181b', // Darker shade for close
+            backgroundColor: isModalOpen ? '#27272a' : '#18181b',
         }}
-        className={`fixed bottom-28 right-6 w-16 h-16 rounded-[24px] shadow-2xl flex items-center justify-center z-30 group overflow-hidden ${isModalOpen ? 'text-zinc-400' : 'text-white'}`}
+        className={`fixed bottom-28 right-6 w-16 h-16 rounded-[24px] shadow-2xl flex items-center justify-center z-30 overflow-hidden transition-colors ${isModalOpen ? 'text-zinc-400' : 'text-white'}`}
       >
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
             {isModalOpen ? (
                 <motion.div
                     key="close"
                     initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
                     animate={{ rotate: 0, opacity: 1, scale: 1 }}
                     exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="absolute"
                 >
-                    <X size={30} strokeWidth={2} />
+                    <X size={32} strokeWidth={2.5} />
                 </motion.div>
             ) : (
                 <motion.div
@@ -320,9 +321,10 @@ const Rules: React.FC = () => {
                     initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
                     animate={{ rotate: 0, opacity: 1, scale: 1 }}
                     exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    className="absolute"
                 >
-                    <Plus size={30} strokeWidth={2} />
+                    <Plus size={32} strokeWidth={2.5} />
                 </motion.div>
             )}
         </AnimatePresence>
