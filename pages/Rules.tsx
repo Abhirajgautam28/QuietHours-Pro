@@ -49,6 +49,7 @@ const Rules: React.FC = () => {
   const handleCardClick = (id: string, e: React.MouseEvent) => {
     // Prevent expanding if clicking the toggle or its container
     if ((e.target as HTMLElement).closest('button[role="switch"]')) return;
+    triggerHaptic();
     setExpandedId(expandedId === id ? null : id);
   };
 
@@ -184,16 +185,20 @@ const Rules: React.FC = () => {
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.01 }}
-                transition={{ duration: 0.2, delay: index * 0.05 }}
+                whileHover={{ scale: 1.005 }}
+                whileTap={{ scale: 0.99 }}
+                transition={{ 
+                    layout: { type: "spring", stiffness: 300, damping: 30 },
+                    opacity: { duration: 0.2 }
+                }}
                 onClick={(e) => handleCardClick(rule.id, e)}
-                className={`group relative overflow-hidden rounded-[24px] transition-all duration-300 border cursor-pointer ${
+                className={`group relative overflow-hidden rounded-[24px] border cursor-pointer transition-colors duration-300 ${
                     rule.isActive 
                         ? 'bg-white dark:bg-[#141414] border-zinc-200 dark:border-white/10 shadow-lg shadow-zinc-200/50 dark:shadow-black/50' 
                         : 'bg-zinc-50 dark:bg-black border-zinc-100 dark:border-zinc-800/50 hover:bg-white dark:hover:bg-[#0a0a0a] hover:border-zinc-200 dark:hover:border-zinc-800'
-                } ${isExpanded ? 'ring-2 ring-indigo-500/20' : ''}`}
+                } ${isExpanded ? 'ring-1 ring-indigo-500/30 dark:ring-indigo-500/20' : ''}`}
               >
-                <div className="p-4 flex items-center gap-4">
+                <div className="p-4 flex items-center gap-4 relative z-10">
                   {/* Icon Container */}
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-300 shrink-0 ${
                       rule.isActive 
@@ -243,10 +248,19 @@ const Rules: React.FC = () => {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                            className="bg-zinc-50 dark:bg-[#151515] border-t border-zinc-100 dark:border-white/5"
+                            transition={{ 
+                                height: { type: "spring", stiffness: 400, damping: 30, mass: 0.8 },
+                                opacity: { duration: 0.2, delay: 0.05 } 
+                            }}
+                            className="overflow-hidden bg-zinc-50/50 dark:bg-[#18181b]/50 border-t border-zinc-100 dark:border-white/5"
                         >
-                            <div className="p-4 pt-3 space-y-4">
+                            <motion.div 
+                                initial={{ y: -10, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: -10, opacity: 0 }}
+                                transition={{ duration: 0.3, ease: "easeOut" }}
+                                className="p-4 pt-3 space-y-4"
+                            >
                                 <div className="space-y-3">
                                     <div className="flex items-start gap-3">
                                         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0" />
@@ -266,21 +280,21 @@ const Rules: React.FC = () => {
 
                                 <div className="flex gap-3 pt-2">
                                     <button 
-                                      onClick={() => openEditModal(rule)}
+                                      onClick={(e) => { e.stopPropagation(); openEditModal(rule); }}
                                       className="flex-1 h-10 bg-white dark:bg-[#1C1C1E] rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-[#252525] transition-colors border border-zinc-200 dark:border-white/5 shadow-sm"
                                     >
                                         <Edit2 size={14} className="text-zinc-400" />
                                         Edit
                                     </button>
                                     <button 
-                                      onClick={() => handleDelete(rule.id)}
+                                      onClick={(e) => { e.stopPropagation(); handleDelete(rule.id); }}
                                       className="flex-1 h-10 bg-rose-50 dark:bg-rose-500/10 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-rose-500 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors border border-rose-100 dark:border-rose-500/10"
                                     >
                                         <Trash2 size={14} />
                                         Delete
                                     </button>
                                 </div>
-                            </div>
+                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>
