@@ -6,17 +6,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const RuleIcon = ({ type, isActive }: { type: Rule['type'], isActive: boolean }) => {
   const colors = {
-    LOCATION: isActive ? "text-emerald-500 dark:text-emerald-400" : "text-zinc-400 dark:text-zinc-500",
-    WIFI: isActive ? "text-sky-500 dark:text-sky-400" : "text-zinc-400 dark:text-zinc-500",
-    CALENDAR: isActive ? "text-rose-500 dark:text-rose-400" : "text-zinc-400 dark:text-zinc-500",
-    TIME: isActive ? "text-amber-500 dark:text-amber-400" : "text-zinc-400 dark:text-zinc-500",
+    LOCATION: isActive ? "text-emerald-500 dark:text-emerald-400" : "text-zinc-400 dark:text-zinc-600",
+    WIFI: isActive ? "text-sky-500 dark:text-sky-400" : "text-zinc-400 dark:text-zinc-600",
+    CALENDAR: isActive ? "text-rose-500 dark:text-rose-400" : "text-zinc-400 dark:text-zinc-600",
+    TIME: isActive ? "text-amber-500 dark:text-amber-400" : "text-zinc-400 dark:text-zinc-600",
+  };
+  
+  const iconProps = {
+    size: 24,
+    strokeWidth: isActive ? 2 : 1.5,
   };
   
   switch (type) {
-    case 'LOCATION': return <MapPin size={24} className={colors.LOCATION} strokeWidth={1.5} />;
-    case 'WIFI': return <Wifi size={24} className={colors.WIFI} strokeWidth={1.5} />;
-    case 'CALENDAR': return <Calendar size={24} className={colors.CALENDAR} strokeWidth={1.5} />;
-    case 'TIME': return <Clock size={24} className={colors.TIME} strokeWidth={1.5} />;
+    case 'LOCATION': return <MapPin {...iconProps} className={colors.LOCATION} />;
+    case 'WIFI': return <Wifi {...iconProps} className={colors.WIFI} />;
+    case 'CALENDAR': return <Calendar {...iconProps} className={colors.CALENDAR} />;
+    case 'TIME': return <Clock {...iconProps} className={colors.TIME} />;
   }
 };
 
@@ -42,6 +47,7 @@ const Rules: React.FC = () => {
   });
 
   const handleCardClick = (id: string, e: React.MouseEvent) => {
+    // Prevent expanding if clicking the toggle or its container
     if ((e.target as HTMLElement).closest('button[role="switch"]')) return;
     setExpandedId(expandedId === id ? null : id);
   };
@@ -168,7 +174,7 @@ const Rules: React.FC = () => {
         </div>
       </div>
 
-      <motion.div layout className="space-y-4">
+      <motion.div layout className="space-y-3">
         {rules.map((rule, index) => {
             const isExpanded = expandedId === rule.id;
             
@@ -178,35 +184,47 @@ const Rules: React.FC = () => {
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+                whileHover={{ scale: 1.01 }}
+                transition={{ duration: 0.2, delay: index * 0.05 }}
                 onClick={(e) => handleCardClick(rule.id, e)}
-                className={`group relative overflow-hidden rounded-[32px] transition-all duration-300 border cursor-pointer ${
+                className={`group relative overflow-hidden rounded-[24px] transition-all duration-300 border cursor-pointer ${
                     rule.isActive 
-                        ? 'bg-white dark:bg-[#101010] border-zinc-200 dark:border-white/10 shadow-lg dark:shadow-none' 
-                        : 'bg-zinc-50 dark:bg-black border-zinc-200 dark:border-zinc-900'
-                } ${isExpanded ? 'ring-1 ring-indigo-500/30' : ''}`}
+                        ? 'bg-white dark:bg-[#141414] border-zinc-200 dark:border-white/10 shadow-lg shadow-zinc-200/50 dark:shadow-black/50' 
+                        : 'bg-zinc-50 dark:bg-black border-zinc-100 dark:border-zinc-800/50 hover:bg-white dark:hover:bg-[#0a0a0a] hover:border-zinc-200 dark:hover:border-zinc-800'
+                } ${isExpanded ? 'ring-2 ring-indigo-500/20' : ''}`}
               >
-                <div className="p-5 flex items-center gap-5">
-                  <div className={`w-14 h-14 rounded-[24px] flex items-center justify-center transition-colors duration-300 ${
-                      rule.isActive ? 'bg-zinc-100 dark:bg-[#1C1C1E]' : 'bg-white dark:bg-[#0a0a0a] border border-zinc-100 dark:border-white/5'
+                <div className="p-4 flex items-center gap-4">
+                  {/* Icon Container */}
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-300 shrink-0 ${
+                      rule.isActive 
+                        ? 'bg-zinc-100 dark:bg-[#1f1f1f]' 
+                        : 'bg-white dark:bg-[#0a0a0a] border border-zinc-100 dark:border-white/5'
                   }`}>
                     <RuleIcon type={rule.type} isActive={rule.isActive} />
                   </div>
                   
-                  <div className="flex-1 min-w-0 py-1">
-                    <h3 className={`font-medium text-[16px] mb-0.5 transition-colors ${rule.isActive ? 'text-zinc-900 dark:text-white' : 'text-zinc-400 dark:text-zinc-500'}`}>
+                  {/* Text Content */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className={`font-semibold text-[16px] leading-tight mb-0.5 transition-colors ${
+                        rule.isActive ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-500 dark:text-zinc-500'
+                    }`}>
                         {rule.name}
                     </h3>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-600 truncate">{rule.description}</p>
+                    <p className={`text-xs font-medium truncate transition-colors ${
+                        rule.isActive ? 'text-zinc-500 dark:text-zinc-400' : 'text-zinc-400 dark:text-zinc-600'
+                    }`}>
+                        {rule.description}
+                    </p>
                   </div>
 
+                  {/* Toggle */}
                   <button 
                     role="switch"
                     onClick={(e) => {
                         e.stopPropagation();
                         toggleRule(rule.id);
                     }}
-                    className={`relative w-12 h-7 rounded-full transition-colors duration-300 ease-out flex items-center px-1 border ${
+                    className={`relative w-11 h-6 rounded-full transition-colors duration-300 ease-out flex items-center px-0.5 border shrink-0 ${
                       rule.isActive ? 'bg-indigo-500 dark:bg-indigo-600 border-indigo-500' : 'bg-zinc-200 dark:bg-zinc-900 border-zinc-300 dark:border-zinc-800'
                     }`}
                   >
@@ -228,19 +246,19 @@ const Rules: React.FC = () => {
                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
                             className="bg-zinc-50 dark:bg-[#151515] border-t border-zinc-100 dark:border-white/5"
                         >
-                            <div className="p-5 pt-4 space-y-4">
+                            <div className="p-4 pt-3 space-y-4">
                                 <div className="space-y-3">
                                     <div className="flex items-start gap-3">
                                         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0" />
                                         <div>
-                                            <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-0.5">Condition</span>
+                                            <span className="block text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-0.5">Condition</span>
                                             <span className="text-sm text-zinc-600 dark:text-zinc-300">{rule.description}</span>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
                                         <div>
-                                            <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-0.5">Action</span>
+                                            <span className="block text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-0.5">Action</span>
                                             <span className="text-sm text-zinc-600 dark:text-zinc-300">Enable Quiet Mode, Allow Favorites</span>
                                         </div>
                                     </div>
@@ -279,6 +297,7 @@ const Rules: React.FC = () => {
             else openAddModal();
         }}
         whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.05 }}
         animate={{ 
             backgroundColor: isModalOpen ? '#27272a' : '#18181b', // Darker shade for close
         }}
