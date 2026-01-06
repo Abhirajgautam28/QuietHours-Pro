@@ -280,16 +280,33 @@ const Rules: React.FC = () => {
         }}
         whileTap={{ scale: 0.95 }}
         animate={{ 
-            backgroundColor: isModalOpen ? '#27272a' : '#18181b', // Zinc-800 : Zinc-900 (Darker for add)
+            backgroundColor: isModalOpen ? '#27272a' : '#18181b', // Darker shade for close
         }}
         className={`fixed bottom-28 right-6 w-16 h-16 rounded-[24px] shadow-2xl flex items-center justify-center z-30 group overflow-hidden ${isModalOpen ? 'text-zinc-400' : 'text-white'}`}
       >
-        <motion.div
-            animate={{ rotate: isModalOpen ? 45 : 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        >
-             <Plus size={30} strokeWidth={2} />
-        </motion.div>
+        <AnimatePresence mode="wait">
+            {isModalOpen ? (
+                <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                    exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                    <X size={30} strokeWidth={2} />
+                </motion.div>
+            ) : (
+                <motion.div
+                    key="add"
+                    initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                    exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                >
+                    <Plus size={30} strokeWidth={2} />
+                </motion.div>
+            )}
+        </AnimatePresence>
       </motion.button>
 
       {/* Add/Edit Modal */}
@@ -313,7 +330,7 @@ const Rules: React.FC = () => {
                         <h3 className="text-xl font-light text-zinc-900 dark:text-white">
                             {editingRule ? 'Edit Rule' : 'New Automation'}
                         </h3>
-                         <button onClick={() => setIsModalOpen(false)} className="p-2 bg-zinc-100 dark:bg-[#1C1C1E] rounded-full text-zinc-400">
+                         <button onClick={() => setIsModalOpen(false)} className="p-2 bg-zinc-100 dark:bg-[#1C1C1E] rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
                              <X size={18} />
                          </button>
                     </div>

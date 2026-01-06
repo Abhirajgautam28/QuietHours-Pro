@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, PhoneCall, BellRing, Plus, MoreHorizontal, ChevronRight, Settings2, Trash2 } from 'lucide-react';
+import { Star, PhoneCall, BellRing, Plus, MoreHorizontal, ChevronRight, Settings2, Trash2, X } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { Contact } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -210,33 +210,35 @@ const Bypass: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 bg-black/60 dark:bg-black/80 backdrop-blur-sm"
+                className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 dark:bg-black/80 backdrop-blur-sm"
                 onClick={() => setIsModalOpen(false)}
             >
                 <motion.div
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    exit={{ y: "100%" }}
-                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    initial={{ scale: 0.9, y: 20, opacity: 0 }}
+                    animate={{ scale: 1, y: 0, opacity: 1 }}
+                    exit={{ scale: 0.9, y: 20, opacity: 0 }}
                     onClick={e => e.stopPropagation()}
-                    className="w-full md:max-w-sm bg-white dark:bg-[#121212] border-t md:border border-white/10 rounded-t-[32px] md:rounded-[32px] p-8 shadow-2xl"
+                    className="w-full max-w-sm bg-white dark:bg-[#121212] border border-white/10 rounded-[32px] p-6 shadow-2xl overflow-hidden"
                 >
-                    <div className="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto mb-8 md:hidden" />
-                    
-                    <div className="flex justify-between items-start mb-6">
+                    <div className="flex justify-between items-center mb-6">
                         <h3 className="text-xl font-light text-zinc-900 dark:text-white">
                             {editingContact ? 'Edit Contact' : 'New Contact'}
                         </h3>
-                        {editingContact && (
-                             <button onClick={handleDelete} className="p-2 bg-rose-50 dark:bg-rose-500/10 rounded-full text-rose-500 dark:text-rose-400">
-                                <Trash2 size={18} />
+                         <div className="flex gap-2">
+                             {editingContact && (
+                                <button onClick={handleDelete} className="p-2 bg-rose-50 dark:bg-rose-500/10 rounded-full text-rose-500 dark:text-rose-400">
+                                    <Trash2 size={18} />
+                                </button>
+                             )}
+                            <button onClick={() => setIsModalOpen(false)} className="p-2 bg-zinc-100 dark:bg-[#1C1C1E] rounded-full text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
+                                <X size={18} />
                             </button>
-                        )}
+                         </div>
                     </div>
                     
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Contact Name</label>
+                            <label className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">Contact Name</label>
                             <input 
                                 type="text"
                                 value={name}
@@ -282,7 +284,7 @@ const Bypass: React.FC = () => {
                     <div className="flex gap-3 mt-10">
                         <button 
                             onClick={() => setIsModalOpen(false)}
-                            className="flex-1 py-4 rounded-full text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors"
+                            className="flex-1 py-4 rounded-full text-sm font-semibold text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white transition-colors hover:bg-zinc-100 dark:hover:bg-white/5"
                         >
                             Cancel
                         </button>
