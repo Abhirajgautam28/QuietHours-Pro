@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Shield, List, Zap, Settings } from 'lucide-react';
+import { Home, Shield, List, Zap } from 'lucide-react';
 import { AppRoute } from '../types';
 import { motion } from 'framer-motion';
 
@@ -17,39 +17,44 @@ const BottomNav: React.FC<BottomNavProps> = ({ currentRoute, onNavigate }) => {
   ];
 
   return (
-    <div className="bg-[#121723] pt-2 pb-6 px-4">
-      <div className="flex justify-between items-center max-w-sm mx-auto">
-        {navItems.map((item) => {
-          const isActive = currentRoute === item.route;
-          return (
-            <button
-              key={item.route}
-              onClick={() => onNavigate(item.route)}
-              className="flex flex-col items-center gap-1 w-16 group"
-            >
-              <div className="relative flex items-center justify-center w-16 h-8">
+    <div className="absolute bottom-6 left-4 right-4 z-40">
+      <div className="bg-[#1C1C1E]/80 backdrop-blur-xl border border-white/5 rounded-[32px] p-2 shadow-2xl shadow-black/50">
+        <div className="flex justify-between items-center px-2">
+          {navItems.map((item) => {
+            const isActive = currentRoute === item.route;
+            return (
+              <button
+                key={item.route}
+                onClick={() => onNavigate(item.route)}
+                className="relative flex flex-col items-center justify-center w-16 h-16 rounded-full group outline-none"
+              >
                 {isActive && (
                     <motion.div
                         layoutId="nav-pill"
-                        className="absolute inset-0 bg-indigo-500/20 rounded-full"
+                        className="absolute inset-0 bg-[#2C2C2E] rounded-full"
                         initial={false}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
                     />
                 )}
-                <item.icon 
-                    size={24} 
-                    className={`z-10 transition-colors duration-200 ${isActive ? 'text-indigo-200' : 'text-slate-500 group-hover:text-slate-400'}`} 
-                    strokeWidth={isActive ? 2.5 : 2}
-                />
-              </div>
-              <span className={`text-[11px] font-medium transition-colors duration-200 ${
-                isActive ? 'text-indigo-200' : 'text-slate-500'
-              }`}>
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
+                
+                <div className="relative z-10 flex flex-col items-center gap-1">
+                    <item.icon 
+                        size={24} 
+                        className={`transition-all duration-300 ${isActive ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300'}`} 
+                        strokeWidth={isActive ? 2.5 : 1.5}
+                    />
+                    {isActive && (
+                        <motion.div 
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="w-1 h-1 bg-white rounded-full mt-1"
+                        />
+                    )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

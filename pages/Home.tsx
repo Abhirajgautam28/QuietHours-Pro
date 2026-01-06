@@ -1,5 +1,5 @@
 import React from 'react';
-import { Moon, Clock, ChevronRight, Power } from 'lucide-react';
+import { Moon, Clock, ChevronRight, Power, Zap, Wind } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,115 +19,148 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full px-6 pt-4 pb-24 overflow-y-auto no-scrollbar">
+    <div className="flex flex-col h-full px-5 pt-6 pb-32 overflow-y-auto no-scrollbar bg-black">
       
-      {/* Main Toggle Area */}
-      <div className="flex-1 flex flex-col items-center justify-center min-h-[360px]">
+      {/* Main Status & Toggle */}
+      <div className="flex-1 flex flex-col items-center justify-center min-h-[380px] relative">
+        
+        {/* Background Atmosphere */}
+        <AnimatePresence>
+            {isDndActive && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1 }}
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                >
+                    <div className="w-[300px] h-[300px] bg-indigo-900/20 rounded-full blur-[100px]" />
+                </motion.div>
+            )}
+        </AnimatePresence>
+
+        {/* The Monolith Button */}
         <motion.button
           onClick={handleToggle}
           whileTap={{ scale: 0.95 }}
-          className="relative z-10"
+          className="relative group outline-none z-10"
         >
-          {/* Animated Background Layers */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-             <AnimatePresence>
-                {isDndActive && (
-                    <>
+            <motion.div 
+                animate={{
+                    background: isDndActive 
+                        ? 'linear-gradient(135deg, #1e1b4b, #000000)' 
+                        : 'linear-gradient(135deg, #0a0a0a, #000000)',
+                    borderColor: isDndActive ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255,255,255,0.05)'
+                }}
+                className="w-60 h-60 rounded-full flex flex-col items-center justify-center relative border transition-colors duration-700 shadow-2xl"
+            >
+                {/* Inner Ring */}
+                <div className="absolute inset-2 rounded-full border border-white/5" />
+                
+                {/* Icon Container */}
+                <motion.div
+                    animate={{ 
+                        scale: isDndActive ? 1.1 : 1,
+                        textShadow: isDndActive ? "0 0 20px rgba(129, 140, 248, 0.5)" : "none"
+                    }}
+                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                    className="mb-4 relative"
+                >
+                    {isDndActive ? (
+                        <Moon size={48} strokeWidth={1} fill="currentColor" className="text-indigo-400" />
+                    ) : (
+                        <Power size={48} strokeWidth={1} className="text-zinc-600" />
+                    )}
+                    
+                    {/* Breathing Glow */}
+                    {isDndActive && (
                         <motion.div 
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1.5, opacity: 0.15 }}
-                            exit={{ scale: 0.8, opacity: 0 }}
-                            transition={{ duration: 3, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-                            className="w-64 h-64 rounded-full bg-indigo-500 blur-2xl absolute"
+                            animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute inset-0 bg-indigo-500/50 blur-xl rounded-full -z-10"
                         />
-                         <motion.div 
-                            initial={{ scale: 1, opacity: 0 }}
-                            animate={{ scale: 1.2, opacity: 0.1 }}
-                            exit={{ scale: 1, opacity: 0 }}
-                            transition={{ duration: 2, repeat: Infinity, repeatType: "reverse", ease: "easeInOut", delay: 0.5 }}
-                            className="w-64 h-64 rounded-full bg-purple-500 blur-3xl absolute"
-                        />
-                    </>
-                )}
-             </AnimatePresence>
-          </div>
-
-          {/* The Button */}
-          <motion.div 
-            animate={{
-                backgroundColor: isDndActive ? '#312e81' : '#1e293b', // indigo-900 vs slate-800
-                boxShadow: isDndActive ? '0 0 0 1px rgba(99, 102, 241, 0.3)' : '0 0 0 0px transparent'
-            }}
-            className="w-48 h-48 rounded-[3rem] flex items-center justify-center relative shadow-2xl transition-colors duration-500"
-          >
-             <motion.div
-                animate={{ rotate: isDndActive ? 0 : -10, scale: isDndActive ? 1.1 : 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-             >
-                 {isDndActive ? (
-                    <Moon size={64} className="text-indigo-200" fill="currentColor" />
-                 ) : (
-                    <Power size={64} className="text-slate-500" />
-                 )}
-             </motion.div>
-          </motion.div>
+                    )}
+                </motion.div>
+                
+                <motion.span 
+                    animate={{ 
+                        opacity: isDndActive ? 1 : 0.4,
+                        color: isDndActive ? '#a5b4fc' : '#52525b'
+                    }}
+                    className="text-[10px] font-bold tracking-[0.2em] uppercase"
+                >
+                    {isDndActive ? 'Active' : 'Offline'}
+                </motion.span>
+            </motion.div>
         </motion.button>
 
-        <div className="mt-8 text-center space-y-2">
+        <div className="mt-12 text-center space-y-2 z-10">
             <motion.h2 
                 layout
-                className={`text-3xl font-light tracking-tight ${isDndActive ? 'text-indigo-100' : 'text-slate-400'}`}
+                className={`text-3xl font-light tracking-tight ${isDndActive ? 'text-white' : 'text-zinc-600'}`}
             >
-                {isDndActive ? 'Quiet Mode' : 'Focus Off'}
+                {isDndActive ? 'Quiet Mode' : 'Focus is Off'}
             </motion.h2>
-            <motion.p 
+            <motion.div 
                 layout
-                className="text-sm text-slate-500 font-medium"
+                className="flex items-center justify-center gap-2 text-sm text-zinc-500 font-medium"
             >
-                {isDndActive ? 'Until 11:30 PM' : 'Tap to silence distractions'}
-            </motion.p>
+                {isDndActive ? (
+                    <>
+                        <Clock size={14} />
+                        <span>Until 10:00 AM</span>
+                    </>
+                ) : (
+                    <span>Tap to silence the world</span>
+                )}
+            </motion.div>
         </div>
       </div>
 
-      {/* Action Cards */}
+      {/* Widgets Grid */}
       <motion.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="space-y-3"
+        transition={{ delay: 0.2, type: "spring" }}
+        className="space-y-4"
       >
-        {isDndActive && (
-            <div className="p-4 bg-[#1e293b] rounded-3xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center">
-                        <Clock size={20} className="text-indigo-400" />
+        <AnimatePresence>
+            {isDndActive && (
+                <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                >
+                    <div className="bg-[#0a0a0a] border border-white/5 p-1 rounded-[24px] flex items-center justify-between pl-4 pr-1.5 py-1.5">
+                        <div className="flex items-center gap-3">
+                            <Wind size={18} className="text-indigo-400" />
+                            <span className="text-sm text-zinc-300">Need more time?</span>
+                        </div>
+                        <button className="h-9 px-4 bg-[#1C1C1E] rounded-[20px] text-xs font-semibold text-white hover:bg-[#2C2C2E] transition-colors border border-white/5">
+                            +30m
+                        </button>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-sm font-medium text-slate-200">Add 30 mins</span>
-                        <span className="text-xs text-slate-500">Extend focus time</span>
-                    </div>
-                </div>
-                <button className="px-4 py-2 bg-slate-700/50 rounded-full text-xs font-medium text-indigo-300">
-                    +30m
-                </button>
-            </div>
-        )}
+                </motion.div>
+            )}
+        </AnimatePresence>
 
-        <div className="p-5 bg-[#1e293b] rounded-[2rem] hover:bg-[#253045] transition-colors cursor-pointer group">
-            <div className="flex justify-between items-center mb-4">
-                <span className="text-slate-200 font-medium text-sm">Next Schedule</span>
-                <ChevronRight size={18} className="text-slate-500" />
+        <div className="bg-[#0a0a0a] border border-white/5 p-6 rounded-[32px] active:scale-[0.99] transition-transform duration-200 group">
+            <div className="flex justify-between items-start mb-6">
+                <div className="flex gap-2 items-center">
+                    <div className="w-6 h-6 rounded-full bg-[#1C1C1E] flex items-center justify-center">
+                         <Zap size={10} className="text-amber-400 fill-amber-400" />
+                    </div>
+                    <span className="text-zinc-500 text-[11px] font-bold uppercase tracking-wider">Up Next</span>
+                </div>
+                <ChevronRight size={18} className="text-zinc-700 group-hover:text-zinc-500 transition-colors" />
             </div>
-            <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-light text-slate-100">10:00</span>
-                <span className="text-sm text-slate-500 font-medium">PM</span>
-                <span className="text-sm text-slate-500 ml-auto">Sleeping</span>
+            
+            <div className="flex items-baseline gap-2 mb-1">
+                <span className="text-4xl font-light text-white tracking-tighter">10:00</span>
+                <span className="text-lg text-zinc-600 font-medium">PM</span>
             </div>
-            <div className="mt-4 flex gap-1">
-                {['S','M','T','W','T','F','S'].map((day, i) => (
-                    <div key={i} className={`h-1 flex-1 rounded-full ${i > 0 && i < 6 ? 'bg-indigo-500' : 'bg-slate-700'}`} />
-                ))}
-            </div>
+            <p className="text-sm text-zinc-500 font-medium">Sleeping Schedule</p>
         </div>
       </motion.div>
 

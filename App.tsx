@@ -20,7 +20,7 @@ const MainLayout: React.FC = () => {
       case AppRoute.BYPASS: return <Bypass />;
       case AppRoute.DIGEST: return <Digest />;
       case AppRoute.PRO: return <Pro />;
-      case AppRoute.SETTINGS: return <Pro />; // Reuse Pro screen for settings demo
+      case AppRoute.SETTINGS: return <Pro />;
       default: return <Home />;
     }
   };
@@ -38,33 +38,30 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-0 md:p-8 font-sans">
-      {/* Phone Frame */}
-      <div className="w-full h-screen md:h-[844px] md:w-[390px] bg-[#0b0f19] md:rounded-[40px] md:border-[8px] md:border-[#1e293b] shadow-2xl relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center p-0 md:p-8 font-sans selection:bg-indigo-500/30">
+      {/* Phone Frame - High Fidelity */}
+      <div className="w-full h-screen md:h-[844px] md:w-[390px] bg-black md:rounded-[48px] md:border-[6px] md:border-[#1a1a1a] shadow-2xl relative overflow-hidden flex flex-col ring-1 ring-white/10">
         
-        {/* Status Bar Area (Visual) */}
-        <div className="h-12 w-full flex justify-between items-center px-6 pt-2 z-50">
-           <span className="text-xs font-medium text-slate-400">9:41</span>
-           <div className="flex gap-1.5">
-             <div className="w-4 h-4 rounded-full border border-slate-600/50" />
-             <div className="w-4 h-4 rounded-full border border-slate-600/50" />
-             <div className="w-4 h-4 rounded-full bg-slate-400/50" />
+        {/* Status Bar */}
+        <div className="h-14 w-full flex justify-between items-end px-7 pb-3 z-50 pointer-events-none mix-blend-difference text-white">
+           <span className="text-[15px] font-semibold tracking-wide">9:41</span>
+           <div className="flex gap-1.5 items-center">
+             <div className="h-3 w-3 bg-white rounded-full"></div>
+             <div className="h-3 w-3 bg-white rounded-full"></div>
+             <div className="w-6 h-3 bg-white rounded-full"></div>
            </div>
         </div>
 
-        {/* Dynamic Island (Visual) */}
-        <div className="hidden md:block absolute top-3 left-1/2 -translate-x-1/2 w-[120px] h-[35px] bg-black rounded-full z-50 pointer-events-none"></div>
-
         <Header title={getTitle()} onNavigate={setCurrentRoute} currentRoute={currentRoute} />
         
-        <main className="flex-1 overflow-hidden relative bg-[#0b0f19]">
+        <main className="flex-1 overflow-hidden relative bg-black">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentRoute}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
+              initial={{ opacity: 0, scale: 0.98, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, scale: 1.02, filter: 'blur(2px)' }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }} // iOS/Android ease
               className="h-full w-full"
             >
               {renderScreen()}
@@ -75,7 +72,7 @@ const MainLayout: React.FC = () => {
         <BottomNav currentRoute={currentRoute} onNavigate={setCurrentRoute} />
         
         {/* Home Indicator */}
-        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-700/50 rounded-full z-50"></div>
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/20 rounded-full z-50 pointer-events-none"></div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Bell, Clock, CheckCircle2 } from 'lucide-react';
+import { ChevronDown, Bell, Clock, CheckCircle2, MoreHorizontal } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -9,19 +9,21 @@ const Digest: React.FC = () => {
 
   if (!isPro) {
       return (
-        <div className="flex flex-col items-center justify-center h-full px-8 text-center pb-24">
+        <div className="flex flex-col items-center justify-center h-full px-8 text-center pb-24 bg-black">
              <motion.div 
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                className="w-20 h-20 bg-[#1e2432] rounded-[2rem] flex items-center justify-center mb-8"
+                animate={{ 
+                    y: [0, -10, 0],
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="w-20 h-20 bg-gradient-to-br from-[#1C1C1E] to-black rounded-[28px] flex items-center justify-center mb-8 border border-white/5 shadow-2xl"
             >
-                <Bell size={32} className="text-slate-400" />
+                <Bell size={28} className="text-zinc-400" />
             </motion.div>
-            <h2 className="text-2xl font-light text-slate-100 mb-3">Notification Digest</h2>
-            <p className="text-slate-500 text-sm mb-10 leading-relaxed">
-                We'll catch notifications while you focus and deliver them in a clean summary when you're done.
+            <h2 className="text-2xl font-light text-white mb-3">Focus First</h2>
+            <p className="text-zinc-500 text-sm mb-10 leading-relaxed max-w-[240px]">
+                We'll catch notifications silently and present them in a clean timeline when you're ready.
             </p>
-            <button className="w-full py-4 bg-indigo-500 rounded-full font-semibold text-[#0b0f19]">
+            <button className="w-full py-4 bg-[#1C1C1E] border border-white/10 rounded-full font-medium text-white shadow-lg active:scale-95 transition-transform">
                 Upgrade to Enable
             </button>
         </div>
@@ -29,29 +31,43 @@ const Digest: React.FC = () => {
   }
 
   return (
-    <div className="px-4 pt-2 pb-24 h-full overflow-y-auto no-scrollbar">
-        {isDndActive ? (
-             <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="bg-indigo-500 text-[#0b0f19] rounded-[24px] p-6 mb-6 text-center"
-             >
-                <div className="flex justify-center mb-3">
-                     <div className="w-12 h-12 bg-black/10 rounded-full flex items-center justify-center animate-pulse">
-                        <Clock size={24} />
-                     </div>
-                </div>
-                <h3 className="font-semibold text-lg">Quiet Mode Active</h3>
-                <p className="text-indigo-950/70 text-sm mt-1">Collecting notifications for later...</p>
-            </motion.div>
-        ) : (
-             <div className="flex items-center gap-2 mb-6 px-2">
-                <CheckCircle2 size={18} className="text-emerald-400" />
-                <span className="text-sm text-slate-400">You're all caught up</span>
-            </div>
-        )}
+    <div className="px-5 pt-4 pb-32 h-full overflow-y-auto no-scrollbar bg-black">
+        <AnimatePresence mode="wait">
+            {isDndActive ? (
+                <motion.div 
+                    key="active"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="bg-[#101010] rounded-[32px] p-6 mb-8 text-center border border-white/5 relative overflow-hidden"
+                >
+                    <div className="flex flex-col items-center z-10 relative">
+                        <div className="w-10 h-10 bg-indigo-500/10 rounded-full flex items-center justify-center mb-3 text-indigo-400 animate-pulse">
+                            <Clock size={20} />
+                        </div>
+                        <h3 className="font-light text-lg text-white">Quiet Mode Active</h3>
+                        <p className="text-zinc-500 text-xs mt-1">Notifications are being summarized</p>
+                    </div>
+                </motion.div>
+            ) : (
+                <motion.div 
+                    key="inactive"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-center gap-3 mb-8 px-2"
+                >
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                        <CheckCircle2 size={16} className="text-emerald-500" />
+                    </div>
+                    <span className="text-sm text-zinc-400 font-medium">You're all caught up</span>
+                </motion.div>
+            )}
+        </AnimatePresence>
 
-        <div className="space-y-2">
+        <div className="relative pl-4 space-y-6">
+            {/* Global Timeline Line */}
+            <div className="absolute left-[27px] top-4 bottom-4 w-px bg-zinc-800/50" />
+
             {notifications.map((group, i) => {
             const isExpanded = expandedId === group.id;
             const Icon = group.icon;
@@ -59,51 +75,83 @@ const Digest: React.FC = () => {
             return (
                 <motion.div 
                     key={group.id} 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.1 }}
-                    className="bg-[#1e2432] rounded-[24px] overflow-hidden"
+                    className="relative z-10"
                 >
-                <button 
-                    onClick={() => setExpandedId(isExpanded ? null : group.id)}
-                    className="w-full p-4 flex items-center gap-4"
-                >
-                    <div className="relative">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center text-slate-300">
-                            <Icon size={20} />
-                        </div>
-                        <div className="absolute -top-1 -right-1 bg-indigo-500 text-[#0b0f19] text-[10px] font-bold h-5 min-w-[1.25rem] px-1 rounded-full flex items-center justify-center border-[3px] border-[#1e2432]">
-                            {group.count}
-                        </div>
-                    </div>
-                    
-                    <div className="flex-1 text-left">
-                        <h3 className="font-medium text-slate-200 text-[15px]">{group.appName}</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">{group.timestamp}</p>
-                    </div>
+                    {/* Timeline Node */}
+                    <div className="absolute left-[-23px] top-6 w-3 h-3 rounded-full bg-black border-2 border-zinc-700 z-20" />
 
-                    {isExpanded ? <ChevronUp size={20} className="text-slate-500"/> : <ChevronDown size={20} className="text-slate-500"/>}
-                </button>
-
-                <AnimatePresence>
-                    {isExpanded && (
-                        <motion.div 
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="bg-black/20"
-                        >
-                            <div className="px-4 pb-4 pt-1 space-y-3">
-                                {group.items.map((item, idx) => (
-                                    <div key={idx} className="text-sm text-slate-400 pl-4 py-1 relative">
-                                        <div className="absolute left-0 top-3 w-1.5 h-1.5 rounded-full bg-indigo-500/50" />
-                                        {item}
-                                    </div>
-                                ))}
+                    <motion.div 
+                        layout
+                        onClick={() => setExpandedId(isExpanded ? null : group.id)}
+                        className={`group rounded-[28px] border transition-all duration-300 overflow-hidden cursor-pointer ${
+                            isExpanded ? 'bg-[#1C1C1E] border-white/10' : 'bg-black border-zinc-900 hover:border-zinc-800'
+                        }`}
+                    >
+                        {/* Header */}
+                        <div className="p-4 flex items-center gap-4">
+                             <div className="relative">
+                                <div className={`w-12 h-12 rounded-[18px] flex items-center justify-center transition-colors ${
+                                    isExpanded ? 'bg-[#2C2C2E]' : 'bg-[#121212]'
+                                }`}>
+                                    <Icon size={20} className="text-zinc-400" />
+                                </div>
+                                <div className="absolute -top-1 -right-1 bg-indigo-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-[3px] border-black">
+                                    {group.count}
+                                </div>
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                            
+                            <div className="flex-1">
+                                <div className="flex justify-between items-center mb-0.5">
+                                    <h3 className="font-medium text-white text-[15px]">{group.appName}</h3>
+                                    <span className="text-[11px] text-zinc-600">{group.timestamp}</span>
+                                </div>
+                                <p className="text-xs text-zinc-500 truncate max-w-[180px]">
+                                    {group.items[0]}
+                                </p>
+                            </div>
+                            
+                            <motion.div 
+                                animate={{ rotate: isExpanded ? 180 : 0 }}
+                                className="text-zinc-600"
+                            >
+                                <ChevronDown size={18} />
+                            </motion.div>
+                        </div>
+
+                        {/* Expanded Content */}
+                        <AnimatePresence>
+                            {isExpanded && (
+                                <motion.div 
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="border-t border-white/5 bg-black/20"
+                                >
+                                    <div className="p-4 pt-2 space-y-3">
+                                        {group.items.map((item, idx) => (
+                                            <motion.div 
+                                                key={idx}
+                                                initial={{ x: -10, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: idx * 0.05 }}
+                                                className="flex gap-3 text-sm text-zinc-300"
+                                            >
+                                                <div className="w-1 h-1 rounded-full bg-zinc-600 mt-2 shrink-0" />
+                                                <span className="leading-relaxed font-light">{item}</span>
+                                            </motion.div>
+                                        ))}
+                                        <div className="pt-2 flex justify-end gap-2">
+                                            <button className="text-[10px] font-semibold text-zinc-500 px-3 py-1.5 rounded-full hover:bg-white/5 transition-colors">Clear</button>
+                                            <button className="text-[10px] font-semibold text-indigo-400 px-3 py-1.5 rounded-full bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors">Open</button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
                 </motion.div>
             );
             })}
