@@ -32,6 +32,39 @@ const MainLayout: React.FC = () => {
     }
   }, [theme]);
 
+  // Handle Hardware Back Button (Android) & Browser History
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // If state exists, use it to set the route
+      if (event.state && event.state.route) {
+        setCurrentRoute(event.state.route);
+      } else {
+        // Fallback to HOME if we hit the start of history or undefined state
+        setCurrentRoute(AppRoute.HOME);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    // Initialize history state if it doesn't exist to ensure we have a base state to return to
+    if (!window.history.state) {
+      window.history.replaceState({ route: AppRoute.HOME }, '', '');
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  // Wrapper for navigation that pushes to history stack
+  const handleNavigate = (route: AppRoute) => {
+    // Only push if different to avoid duplicate history entries
+    if (route !== currentRoute) {
+      window.history.pushState({ route }, '', '');
+      setCurrentRoute(route);
+    }
+  };
+
   const renderScreen = () => {
     switch (currentRoute) {
       case AppRoute.HOME: return <Home />;
@@ -57,46 +90,29 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-100 dark:bg-[#050505] flex items-center justify-center p-0 md:p-8 font-sans selection:bg-indigo-500/30 transition-colors duration-500">
+    <div className="fixed inset-0 bg-white dark:bg-black overflow-hidden flex flex-col transition-colors duration-300 text-zinc-900 dark:text-zinc-100 font-sans">
       <AnimatePresence>
         {!hasSeenOnboarding && <Onboarding />}
       </AnimatePresence>
 
-      {/* Phone Frame - High Fidelity */}
-      <div className="w-full h-screen md:h-[844px] md:w-[390px] bg-white dark:bg-black md:rounded-[48px] md:border-[6px] md:border-[#1a1a1a] shadow-2xl relative overflow-hidden flex flex-col ring-1 ring-black/5 dark:ring-white/10 transition-colors duration-300">
+      <Header title={getTitle()} onNavigate={handleNavigate} currentRoute={currentRoute} />
         
-        {/* Status Bar */}
-        <div className="h-14 w-full flex justify-between items-end px-7 pb-3 z-50 pointer-events-none mix-blend-difference text-white">
-           <span className="text-[15px] font-semibold tracking-wide">9:41</span>
-           <div className="flex gap-1.5 items-center">
-             <div className="h-3 w-3 bg-white rounded-full"></div>
-             <div className="h-3 w-3 bg-white rounded-full"></div>
-             <div className="w-6 h-3 bg-white rounded-full"></div>
-           </div>
-        </div>
+      <main className="flex-1 overflow-hidden relative bg-white dark:bg-black transition-colors duration-300">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentRoute}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="h-full w-full"
+          >
+            {renderScreen()}
+          </motion.div>
+        </AnimatePresence>
+      </main>
 
-        <Header title={getTitle()} onNavigate={setCurrentRoute} currentRoute={currentRoute} />
-        
-        <main className="flex-1 overflow-hidden relative bg-white dark:bg-black transition-colors duration-300">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentRoute}
-              initial={{ opacity: 0, scale: 0.98, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, scale: 1.02, filter: 'blur(2px)' }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }} // iOS/Android ease
-              className="h-full w-full"
-            >
-              {renderScreen()}
-            </motion.div>
-          </AnimatePresence>
-        </main>
-
-        <BottomNav currentRoute={currentRoute} onNavigate={setCurrentRoute} />
-        
-        {/* Home Indicator */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-black/20 dark:bg-white/20 rounded-full z-50 pointer-events-none"></div>
-      </div>
+      <BottomNav currentRoute={currentRoute} onNavigate={handleNavigate} />
     </div>
   );
 };

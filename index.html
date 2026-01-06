@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>QuietHours Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,11 +19,24 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --bg-color: #ffffff;
+      }
+      :root.dark {
+        --bg-color: #000000;
+      }
+
       body {
         font-family: 'Manrope', sans-serif;
-        background-color: #000000; /* Fallback */
+        background-color: var(--bg-color);
+        margin: 0;
+        padding: 0;
         -webkit-tap-highlight-color: transparent;
         overflow: hidden;
+        overscroll-behavior-y: none;
+        user-select: none;
+        -webkit-user-select: none;
+        transition: background-color 0.3s ease;
       }
       
       /* Scroll Physics & Utilities */
@@ -41,11 +54,12 @@
         overscroll-behavior-y: contain;
       }
 
-      /* Smooth gradient text utility */
-      .text-gradient {
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+      /* Safe Area Utilities for Notched Phones */
+      .pt-safe {
+        padding-top: env(safe-area-inset-top);
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom);
       }
     </style>
   <script type="importmap">
