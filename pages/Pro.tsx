@@ -16,7 +16,8 @@ const Pro: React.FC = () => {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.1,
+        delayChildren: 0.1
       }
     }
   };
@@ -29,17 +30,17 @@ const Pro: React.FC = () => {
   return (
     <div className="px-6 pt-6 pb-32 h-full overflow-y-auto no-scrollbar bg-black">
       <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-10 mt-2 relative"
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="text-center mb-10 mt-4 relative"
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-indigo-500/20 rounded-full blur-[50px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-indigo-500/10 rounded-full blur-[60px] pointer-events-none" />
         <h2 className="text-3xl font-light text-white mb-2 tracking-tight relative z-10">
-          Unlock <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300">Calm</span>
+          Unlock <span className="font-semibold text-white">Calm</span>
         </h2>
-        <p className="text-zinc-500 text-sm max-w-[200px] mx-auto leading-relaxed relative z-10">
-          Advanced automation for a distraction-free life.
+        <p className="text-zinc-500 text-sm max-w-[220px] mx-auto leading-relaxed relative z-10">
+          Automate your peace of mind with advanced control.
         </p>
       </motion.div>
 
@@ -51,21 +52,21 @@ const Pro: React.FC = () => {
         className="space-y-4 mb-10"
       >
         {[
-            { icon: Zap, title: "Smart Automation", desc: "Location & WiFi triggers" },
-            { icon: Shield, title: "Precision Bypass", desc: "Fine-grained contact control" },
-            { icon: Sparkles, title: "Notification Digest", desc: "Timeline summary view" },
+            { icon: Zap, title: "Smart Automation", desc: "Triggers based on your location" },
+            { icon: Shield, title: "Precision Bypass", desc: "Allow specific contacts & apps" },
+            { icon: Sparkles, title: "Notification Digest", desc: "Summary of missed alerts" },
         ].map((feat, i) => (
             <motion.div 
                 key={i} 
                 variants={item}
                 className="flex items-center gap-4 p-4 rounded-[24px] bg-[#121212] border border-white/5"
             >
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1c1c1e] to-black flex items-center justify-center text-indigo-400 shrink-0 border border-white/5 shadow-inner">
+                <div className="w-12 h-12 rounded-2xl bg-[#1a1a1a] flex items-center justify-center text-zinc-100 shrink-0 border border-white/5">
                     <feat.icon size={20} strokeWidth={1.5} />
                 </div>
                 <div>
                     <h3 className="font-medium text-white text-[15px]">{feat.title}</h3>
-                    <p className="text-xs text-zinc-500">{feat.desc}</p>
+                    <p className="text-xs text-zinc-500 mt-0.5">{feat.desc}</p>
                 </div>
             </motion.div>
         ))}
@@ -73,33 +74,33 @@ const Pro: React.FC = () => {
 
       {/* Pricing Toggle & Cards */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.4, type: "spring", stiffness: 50 }}
         className="space-y-4"
       >
         <div className="grid grid-cols-2 gap-4">
             {/* Monthly Card */}
             <button 
                 onClick={() => setSelectedPlan('monthly')}
-                className={`relative p-5 rounded-[28px] border transition-all duration-300 text-left h-40 flex flex-col justify-between overflow-hidden group ${
+                className={`relative p-5 rounded-[32px] border transition-all duration-300 text-left h-44 flex flex-col justify-between overflow-hidden group ${
                     selectedPlan === 'monthly' 
-                    ? 'bg-[#1C1C1E] border-indigo-500/50 shadow-lg shadow-indigo-900/10' 
-                    : 'bg-black border-zinc-800 opacity-60 hover:opacity-100'
+                    ? 'bg-[#151515] border-white/20' 
+                    : 'bg-black border-zinc-900 hover:border-zinc-800'
                 }`}
             >
                 <div>
-                    <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1">Monthly</div>
+                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Monthly</div>
                     <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-light text-white">$4.99</span>
+                        <span className="text-3xl font-light text-white tracking-tighter">$4.99</span>
                     </div>
                 </div>
-                <div className="text-[11px] text-zinc-500">7-day free trial</div>
+                <div className="text-[11px] text-zinc-500 font-medium">7-day free trial</div>
                 
                 {selectedPlan === 'monthly' && (
                     <motion.div 
                         layoutId="selection-ring"
-                        className="absolute inset-0 border-2 border-indigo-500/30 rounded-[28px] pointer-events-none"
+                        className="absolute inset-0 border-2 border-indigo-500 rounded-[32px] pointer-events-none opacity-50"
                     />
                 )}
             </button>
@@ -107,28 +108,28 @@ const Pro: React.FC = () => {
             {/* Yearly Card */}
             <button 
                 onClick={() => setSelectedPlan('yearly')}
-                className={`relative p-5 rounded-[28px] border transition-all duration-300 text-left h-40 flex flex-col justify-between overflow-hidden group ${
+                className={`relative p-5 rounded-[32px] border transition-all duration-300 text-left h-44 flex flex-col justify-between overflow-hidden group ${
                     selectedPlan === 'yearly' 
-                    ? 'bg-[#1C1C1E] border-indigo-500/50 shadow-lg shadow-indigo-900/10' 
-                    : 'bg-black border-zinc-800 opacity-60 hover:opacity-100'
+                    ? 'bg-[#151515] border-white/20' 
+                    : 'bg-black border-zinc-900 hover:border-zinc-800'
                 }`}
             >
-                <div className="absolute top-0 right-0 bg-[#1C1C1E] px-3 py-1.5 rounded-bl-[20px] border-l border-b border-white/5">
-                    <span className="text-[9px] font-bold text-indigo-400 tracking-wide">SAVE 50%</span>
+                <div className="absolute top-0 right-0 bg-white text-black px-3 py-1.5 rounded-bl-[20px]">
+                    <span className="text-[9px] font-bold tracking-wide">SAVE 50%</span>
                 </div>
 
                 <div>
-                    <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1">Yearly</div>
+                    <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Yearly</div>
                     <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-light text-white">$29.99</span>
+                        <span className="text-3xl font-light text-white tracking-tighter">$29.99</span>
                     </div>
                 </div>
-                <div className="text-[11px] text-zinc-500">$2.49 / month</div>
+                <div className="text-[11px] text-zinc-500 font-medium">$2.49 / month</div>
 
                 {selectedPlan === 'yearly' && (
                     <motion.div 
                         layoutId="selection-ring"
-                        className="absolute inset-0 border-2 border-indigo-500/30 rounded-[28px] pointer-events-none"
+                        className="absolute inset-0 border-2 border-indigo-500 rounded-[32px] pointer-events-none opacity-50"
                     />
                 )}
             </button>
@@ -137,13 +138,13 @@ const Pro: React.FC = () => {
         <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={handleSubscribe}
-            className="w-full py-4 rounded-full bg-white text-black font-semibold text-sm shadow-xl shadow-white/5 hover:bg-zinc-100 transition-colors mt-4"
+            className="w-full py-5 rounded-full bg-white text-black font-bold text-sm shadow-xl shadow-white/5 hover:bg-zinc-200 transition-colors mt-6"
         >
             {isPro ? 'Plan Active' : `Start 7-Day Free Trial`}
         </motion.button>
 
         <p className="text-center text-[10px] text-zinc-600 mt-6 leading-relaxed px-8">
-            Cancel anytime in Google Play. No questions asked.
+            Recurring billing. Cancel anytime in Google Play.
         </p>
       </motion.div>
     </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Moon, Clock, ChevronRight, Power, Zap, Wind } from 'lucide-react';
+import { Moon, Clock, ChevronRight, Power, Zap, Wind, Timer } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -19,22 +19,22 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full px-5 pt-6 pb-32 overflow-y-auto no-scrollbar bg-black">
+    <div className="flex flex-col h-full px-6 pt-8 pb-32 overflow-y-auto no-scrollbar bg-black">
       
       {/* Main Status & Toggle */}
-      <div className="flex-1 flex flex-col items-center justify-center min-h-[380px] relative">
+      <div className="flex-1 flex flex-col items-center justify-center min-h-[420px] relative">
         
         {/* Background Atmosphere */}
         <AnimatePresence>
             {isDndActive && (
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1 }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
                     className="absolute inset-0 flex items-center justify-center pointer-events-none"
                 >
-                    <div className="w-[300px] h-[300px] bg-indigo-900/20 rounded-full blur-[100px]" />
+                    <div className="w-[340px] h-[340px] bg-gradient-to-tr from-indigo-900/10 via-purple-900/5 to-transparent rounded-full blur-[80px]" />
                 </motion.div>
             )}
         </AnimatePresence>
@@ -42,87 +42,115 @@ const Home: React.FC = () => {
         {/* The Monolith Button */}
         <motion.button
           onClick={handleToggle}
-          whileTap={{ scale: 0.95 }}
+          whileTap={{ scale: 0.96 }}
           className="relative group outline-none z-10"
         >
             <motion.div 
                 animate={{
                     background: isDndActive 
-                        ? 'linear-gradient(135deg, #1e1b4b, #000000)' 
-                        : 'linear-gradient(135deg, #0a0a0a, #000000)',
-                    borderColor: isDndActive ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255,255,255,0.05)'
+                        ? 'linear-gradient(145deg, #101012, #000000)' 
+                        : 'linear-gradient(145deg, #0a0a0a, #000000)',
+                    boxShadow: isDndActive 
+                        ? '0px 20px 60px -15px rgba(0,0,0,1), inset 0px 1px 1px rgba(255,255,255,0.08)' 
+                        : '0px 20px 40px -10px rgba(0,0,0,0.8), inset 0px 1px 1px rgba(255,255,255,0.05)',
+                    borderWidth: '1px',
+                    borderColor: isDndActive ? '#1C1C1E' : '#121212'
                 }}
-                className="w-60 h-60 rounded-full flex flex-col items-center justify-center relative border transition-colors duration-700 shadow-2xl"
+                className="w-64 h-64 rounded-full flex flex-col items-center justify-center relative transition-all duration-700"
             >
-                {/* Inner Ring */}
-                <div className="absolute inset-2 rounded-full border border-white/5" />
+                {/* Active Indicator Ring */}
+                <motion.div 
+                    animate={{ 
+                        opacity: isDndActive ? 1 : 0,
+                        rotate: isDndActive ? 180 : 0
+                    }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                    className="absolute inset-0 rounded-full border border-indigo-500/20" 
+                    style={{ borderTopColor: 'transparent', borderLeftColor: 'transparent' }}
+                />
                 
                 {/* Icon Container */}
                 <motion.div
                     animate={{ 
-                        scale: isDndActive ? 1.1 : 1,
-                        textShadow: isDndActive ? "0 0 20px rgba(129, 140, 248, 0.5)" : "none"
+                        scale: isDndActive ? 1.05 : 1,
+                        y: isDndActive ? -4 : 0
                     }}
                     transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                    className="mb-4 relative"
+                    className="mb-5 relative"
                 >
                     {isDndActive ? (
-                        <Moon size={48} strokeWidth={1} fill="currentColor" className="text-indigo-400" />
+                        <div className="relative">
+                            <Moon size={56} strokeWidth={1} fill="#818cf8" className="text-indigo-400 drop-shadow-[0_0_15px_rgba(129,140,248,0.4)]" />
+                            <motion.div 
+                                animate={{ opacity: [0, 0.5, 0] }}
+                                transition={{ duration: 3, repeat: Infinity }}
+                                className="absolute inset-0 bg-indigo-400 blur-2xl opacity-20"
+                            />
+                        </div>
                     ) : (
-                        <Power size={48} strokeWidth={1} className="text-zinc-600" />
-                    )}
-                    
-                    {/* Breathing Glow */}
-                    {isDndActive && (
-                        <motion.div 
-                            animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.2, 1] }}
-                            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute inset-0 bg-indigo-500/50 blur-xl rounded-full -z-10"
-                        />
+                        <Power size={56} strokeWidth={1} className="text-zinc-700" />
                     )}
                 </motion.div>
                 
-                <motion.span 
-                    animate={{ 
-                        opacity: isDndActive ? 1 : 0.4,
-                        color: isDndActive ? '#a5b4fc' : '#52525b'
-                    }}
-                    className="text-[10px] font-bold tracking-[0.2em] uppercase"
+                <motion.div 
+                    layout
+                    className="flex flex-col items-center gap-1"
                 >
-                    {isDndActive ? 'Active' : 'Offline'}
-                </motion.span>
+                    <motion.span 
+                        animate={{ 
+                            color: isDndActive ? '#ffffff' : '#52525b'
+                        }}
+                        className="text-xs font-semibold tracking-[0.2em] uppercase"
+                    >
+                        {isDndActive ? 'Quiet Mode' : 'Off'}
+                    </motion.span>
+                </motion.div>
             </motion.div>
         </motion.button>
 
-        <div className="mt-12 text-center space-y-2 z-10">
+        <div className="mt-14 text-center z-10 h-20">
             <motion.h2 
-                layout
-                className={`text-3xl font-light tracking-tight ${isDndActive ? 'text-white' : 'text-zinc-600'}`}
+                key={isDndActive ? "active" : "inactive"}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`text-3xl font-light tracking-tight mb-2 ${isDndActive ? 'text-white' : 'text-zinc-600'}`}
             >
-                {isDndActive ? 'Quiet Mode' : 'Focus is Off'}
+                {isDndActive ? 'Silence is Golden' : 'Ready to Focus?'}
             </motion.h2>
-            <motion.div 
-                layout
-                className="flex items-center justify-center gap-2 text-sm text-zinc-500 font-medium"
-            >
+            
+            <AnimatePresence mode="wait">
                 {isDndActive ? (
-                    <>
-                        <Clock size={14} />
-                        <span>Until 10:00 AM</span>
-                    </>
+                    <motion.div 
+                        key="timer"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center justify-center gap-2 text-indigo-400/80 bg-indigo-900/10 px-4 py-1.5 rounded-full border border-indigo-500/10"
+                    >
+                        <Timer size={14} />
+                        <span className="text-sm font-medium tabular-nums">until 10:00 AM</span>
+                    </motion.div>
                 ) : (
-                    <span>Tap to silence the world</span>
+                    <motion.p 
+                        key="prompt"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="text-sm text-zinc-600 font-medium"
+                    >
+                        Tap to reclaim your attention
+                    </motion.p>
                 )}
-            </motion.div>
+            </AnimatePresence>
         </div>
       </div>
 
       {/* Widgets Grid */}
       <motion.div 
-        initial={{ y: 20, opacity: 0 }}
+        initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2, type: "spring" }}
-        className="space-y-4"
+        transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
+        className="space-y-3"
       >
         <AnimatePresence>
             {isDndActive && (
@@ -132,26 +160,31 @@ const Home: React.FC = () => {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden"
                 >
-                    <div className="bg-[#0a0a0a] border border-white/5 p-1 rounded-[24px] flex items-center justify-between pl-4 pr-1.5 py-1.5">
+                    <div className="bg-[#121212] border border-white/5 rounded-[28px] flex items-center justify-between p-2 pl-5 mb-1">
                         <div className="flex items-center gap-3">
-                            <Wind size={18} className="text-indigo-400" />
-                            <span className="text-sm text-zinc-300">Need more time?</span>
+                            <Wind size={18} className="text-zinc-400" />
+                            <span className="text-sm text-zinc-300 font-medium">Extend session?</span>
                         </div>
-                        <button className="h-9 px-4 bg-[#1C1C1E] rounded-[20px] text-xs font-semibold text-white hover:bg-[#2C2C2E] transition-colors border border-white/5">
-                            +30m
-                        </button>
+                        <div className="flex gap-2">
+                             <button className="h-10 px-5 bg-[#1C1C1E] rounded-[20px] text-xs font-semibold text-white hover:bg-[#252525] transition-colors border border-white/5">
+                                +15m
+                            </button>
+                            <button className="h-10 px-5 bg-white text-black rounded-[20px] text-xs font-semibold hover:bg-zinc-200 transition-colors">
+                                +1h
+                            </button>
+                        </div>
                     </div>
                 </motion.div>
             )}
         </AnimatePresence>
 
-        <div className="bg-[#0a0a0a] border border-white/5 p-6 rounded-[32px] active:scale-[0.99] transition-transform duration-200 group">
+        <div className="bg-[#121212] border border-white/5 p-6 rounded-[32px] active:scale-[0.99] transition-transform duration-200 group cursor-pointer hover:bg-[#151515]">
             <div className="flex justify-between items-start mb-6">
-                <div className="flex gap-2 items-center">
-                    <div className="w-6 h-6 rounded-full bg-[#1C1C1E] flex items-center justify-center">
+                <div className="flex gap-2.5 items-center">
+                    <div className="w-6 h-6 rounded-full bg-[#2C2C2E] flex items-center justify-center">
                          <Zap size={10} className="text-amber-400 fill-amber-400" />
                     </div>
-                    <span className="text-zinc-500 text-[11px] font-bold uppercase tracking-wider">Up Next</span>
+                    <span className="text-zinc-500 text-[11px] font-bold uppercase tracking-widest">Scheduled</span>
                 </div>
                 <ChevronRight size={18} className="text-zinc-700 group-hover:text-zinc-500 transition-colors" />
             </div>
@@ -160,7 +193,7 @@ const Home: React.FC = () => {
                 <span className="text-4xl font-light text-white tracking-tighter">10:00</span>
                 <span className="text-lg text-zinc-600 font-medium">PM</span>
             </div>
-            <p className="text-sm text-zinc-500 font-medium">Sleeping Schedule</p>
+            <p className="text-sm text-zinc-500 font-medium group-hover:text-zinc-400 transition-colors">Daily Sleeping Schedule</p>
         </div>
       </motion.div>
 
