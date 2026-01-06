@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Wifi, Calendar, Clock, Plus, Trash2, Edit2, X, Check } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { Rule } from '../types';
@@ -31,7 +31,15 @@ const Rules: React.FC = () => {
   // Form State
   const [name, setName] = useState('');
   const [type, setType] = useState<Rule['type']>('TIME');
-  const [description, setDescription] = useState('');
+  
+  // Dynamic Config State
+  const [config, setConfig] = useState({
+    timeStart: '22:00',
+    timeEnd: '07:00',
+    location: '',
+    wifi: '',
+    calendar: ''
+  });
 
   const handleCardClick = (id: string, e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('button[role="switch"]')) return;
@@ -42,7 +50,13 @@ const Rules: React.FC = () => {
     setEditingRule(null);
     setName('');
     setType('TIME');
-    setDescription('');
+    setConfig({
+        timeStart: '22:00',
+        timeEnd: '07:00',
+        location: '',
+        wifi: '',
+        calendar: ''
+    });
     setIsModalOpen(true);
   };
 
@@ -50,14 +64,42 @@ const Rules: React.FC = () => {
     setEditingRule(rule);
     setName(rule.name);
     setType(rule.type);
-    setDescription(rule.description);
+    
+    // Simple parsing logic to pre-fill config from description for the prototype
+    let newConfig = { ...config };
+    
+    if (rule.type === 'WIFI') {
+        const match = rule.description.match(/"([^"]+)"/);
+        if (match) newConfig.wifi = match[1];
+    } else if (rule.type === 'LOCATION') {
+        const match = rule.description.replace('Arriving at ', '');
+        newConfig.location = match;
+    } else if (rule.type === 'CALENDAR') {
+        const match = rule.description.match(/"([^"]+)"/);
+        if (match) newConfig.calendar = match[1];
+    }
+    // Time parsing omitted for brevity, keeping defaults or manual entry for prototype
+    
+    setConfig(newConfig);
     setIsModalOpen(true);
-    setExpandedId(null); // Close the expansion
+    setExpandedId(null);
+  };
+
+  const generateDescription = () => {
+      switch(type) {
+        case 'TIME': return `Every day ${config.timeStart} - ${config.timeEnd}`;
+        case 'LOCATION': return `Arriving at ${config.location || 'Selected Location'}`;
+        case 'WIFI': return `Connected to "${config.wifi || 'WiFi Network'}"`;
+        case 'CALENDAR': return `During events marked "${config.calendar || 'Busy'}"`;
+        default: return '';
+      }
   };
 
   const handleSave = () => {
-    if (!name || !description) return;
+    if (!name) return;
     
+    const description = generateDescription();
+
     if (editingRule) {
       updateRule({
         ...editingRule,
@@ -248,7 +290,7 @@ const Rules: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+                className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm"
                 onClick={() => setIsModalOpen(false)}
             >
                 <motion.div
@@ -256,35 +298,40 @@ const Rules: React.FC = () => {
                     animate={{ scale: 1, y: 0, opacity: 1 }}
                     exit={{ scale: 0.9, y: 20, opacity: 0 }}
                     onClick={e => e.stopPropagation()}
-                    className="w-full max-w-sm bg-[#121212] border border-white/10 rounded-[32px] p-6 shadow-2xl"
+                    className="w-full max-w-sm bg-[#121212] border border-white/10 rounded-[32px] p-6 shadow-2xl overflow-hidden"
                 >
-                    <h3 className="text-xl font-light text-white mb-6">
-                        {editingRule ? 'Edit Rule' : 'New Automation'}
-                    </h3>
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-xl font-light text-white">
+                            {editingRule ? 'Edit Rule' : 'New Automation'}
+                        </h3>
+                         <button onClick={() => setIsModalOpen(false)} className="p-2 bg-[#1C1C1E] rounded-full text-zinc-400">
+                             <X size={18} />
+                         </button>
+                    </div>
                     
                     <div className="space-y-5">
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Rule Name</label>
+                            <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Rule Name</label>
                             <input 
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-[#1C1C1E] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-colors placeholder:text-zinc-600"
+                                className="w-full bg-[#1C1C1E] border border-white/5 rounded-2xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-colors placeholder:text-zinc-600"
                                 placeholder="e.g. Work Mode"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Trigger Type</label>
+                            <label className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Trigger</label>
                             <div className="grid grid-cols-4 gap-2">
                                 {(['TIME', 'LOCATION', 'WIFI', 'CALENDAR'] as const).map(t => (
                                     <button
                                         key={t}
                                         onClick={() => setType(t)}
-                                        className={`h-10 rounded-xl flex items-center justify-center border transition-colors ${
+                                        className={`h-12 rounded-2xl flex items-center justify-center border transition-all ${
                                             type === t 
-                                            ? 'bg-indigo-500 border-indigo-500 text-white' 
-                                            : 'bg-[#1C1C1E] border-white/5 text-zinc-400 hover:bg-[#252525]'
+                                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-900/20' 
+                                            : 'bg-[#1C1C1E] border-white/5 text-zinc-500 hover:bg-[#252525] hover:text-zinc-300'
                                         }`}
                                     >
                                         <RuleIcon type={t} isActive={type === t} />
@@ -293,28 +340,97 @@ const Rules: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Description</label>
-                            <input 
-                                type="text"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="w-full bg-[#1C1C1E] border border-white/5 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-colors placeholder:text-zinc-600"
-                                placeholder="e.g. 9:00 AM - 5:00 PM"
-                            />
+                        {/* Dynamic Configuration Fields */}
+                        <div className="space-y-2 p-4 bg-[#1C1C1E] rounded-2xl border border-white/5">
+                            {type === 'TIME' && (
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-zinc-500 uppercase font-bold">Start</label>
+                                        <input 
+                                            type="time" 
+                                            value={config.timeStart}
+                                            onChange={(e) => setConfig({...config, timeStart: e.target.value})}
+                                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500/50"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-zinc-500 uppercase font-bold">End</label>
+                                        <input 
+                                            type="time" 
+                                            value={config.timeEnd}
+                                            onChange={(e) => setConfig({...config, timeEnd: e.target.value})}
+                                            className="w-full bg-black border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500/50"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {type === 'LOCATION' && (
+                                <div className="space-y-1">
+                                     <label className="text-[10px] text-zinc-500 uppercase font-bold">Address</label>
+                                     <div className="relative">
+                                        <MapPin size={14} className="absolute left-3 top-3 text-zinc-500" />
+                                        <input 
+                                            type="text" 
+                                            value={config.location}
+                                            onChange={(e) => setConfig({...config, location: e.target.value})}
+                                            className="w-full bg-black border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 placeholder:text-zinc-700"
+                                            placeholder="Search location..."
+                                        />
+                                     </div>
+                                </div>
+                            )}
+
+                            {type === 'WIFI' && (
+                                <div className="space-y-1">
+                                     <label className="text-[10px] text-zinc-500 uppercase font-bold">Network Name (SSID)</label>
+                                     <div className="relative">
+                                        <Wifi size={14} className="absolute left-3 top-3 text-zinc-500" />
+                                        <input 
+                                            type="text" 
+                                            value={config.wifi}
+                                            onChange={(e) => setConfig({...config, wifi: e.target.value})}
+                                            className="w-full bg-black border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 placeholder:text-zinc-700"
+                                            placeholder="e.g. Home_5G"
+                                        />
+                                     </div>
+                                </div>
+                            )}
+
+                            {type === 'CALENDAR' && (
+                                <div className="space-y-1">
+                                     <label className="text-[10px] text-zinc-500 uppercase font-bold">Event Keyword</label>
+                                     <div className="relative">
+                                        <Calendar size={14} className="absolute left-3 top-3 text-zinc-500" />
+                                        <input 
+                                            type="text" 
+                                            value={config.calendar}
+                                            onChange={(e) => setConfig({...config, calendar: e.target.value})}
+                                            className="w-full bg-black border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500/50 placeholder:text-zinc-700"
+                                            placeholder="e.g. Meeting"
+                                        />
+                                     </div>
+                                </div>
+                            )}
+                            
+                            <div className="pt-2 pb-1">
+                                <p className="text-[11px] text-zinc-500 leading-tight">
+                                    Rule will activate: <span className="text-indigo-400">{generateDescription()}</span>
+                                </p>
+                            </div>
                         </div>
                     </div>
 
                     <div className="flex gap-3 mt-8">
                         <button 
                             onClick={() => setIsModalOpen(false)}
-                            className="flex-1 py-3 rounded-full text-sm font-semibold text-zinc-400 hover:text-white transition-colors"
+                            className="flex-1 py-3.5 rounded-full text-sm font-semibold text-zinc-400 hover:text-white transition-colors hover:bg-white/5"
                         >
                             Cancel
                         </button>
                         <button 
                             onClick={handleSave}
-                            className="flex-1 py-3 rounded-full bg-white text-black text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors"
+                            className="flex-1 py-3.5 rounded-full bg-white text-black text-sm font-bold shadow-lg hover:bg-zinc-200 transition-colors"
                         >
                             Save Rule
                         </button>
