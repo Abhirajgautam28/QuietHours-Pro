@@ -16,6 +16,17 @@ const Bypass: React.FC = () => {
   const [isStarred, setIsStarred] = useState(true);
   const [allowRepeated, setAllowRepeated] = useState(true);
 
+  // Settings State
+  const [settings, setSettings] = useState({
+    repeatCallers: true,
+    mediaSounds: false
+  });
+
+  const toggleSetting = (key: keyof typeof settings) => {
+    triggerHaptic();
+    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const openAddModal = () => {
     triggerHaptic();
     setEditingContact(null);
@@ -115,39 +126,57 @@ const Bypass: React.FC = () => {
 
         {/* Global Settings */}
         <div className="space-y-4">
-            {[
-                { icon: PhoneCall, title: "Repeat Callers", sub: "Second call within 3 minutes", active: true, color: "text-white", bg: "bg-emerald-500" },
-                { icon: BellRing, title: "Media Sounds", sub: "Videos, Music, Games", active: false, color: "text-white", bg: "bg-amber-500" }
-            ].map((item, i) => (
-                <motion.div 
-                    key={i}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 + (i * 0.1) }}
-                    className="bg-white dark:bg-[#121212] rounded-[28px] p-5 flex items-center justify-between border border-zinc-200 dark:border-white/5 active:scale-[0.99] transition-transform shadow-sm dark:shadow-none"
-                >
-                    <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-[18px] ${item.active ? item.bg : 'bg-zinc-100 dark:bg-[#1C1C1E]'} flex items-center justify-center transition-colors duration-300 shadow-inner`}>
-                            <item.icon size={22} className={item.active ? 'text-white' : 'text-zinc-400 dark:text-zinc-600'} strokeWidth={1.5} />
-                        </div>
-                        <div>
-                            <h3 className="text-zinc-900 dark:text-white font-medium text-[16px] mb-0.5">{item.title}</h3>
-                            <p className="text-xs text-zinc-500">{item.sub}</p>
-                        </div>
+            <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white dark:bg-[#121212] rounded-[28px] p-5 flex items-center justify-between border border-zinc-200 dark:border-white/5 active:scale-[0.99] transition-transform shadow-sm dark:shadow-none"
+            >
+                <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-[18px] ${settings.repeatCallers ? 'bg-emerald-500' : 'bg-zinc-100 dark:bg-[#1C1C1E]'} flex items-center justify-center transition-colors duration-300 shadow-inner`}>
+                        <PhoneCall size={22} className={settings.repeatCallers ? 'text-white' : 'text-zinc-400 dark:text-zinc-600'} strokeWidth={1.5} />
                     </div>
-                    
-                    {/* Custom Toggle */}
-                    <button 
-                        onClick={() => triggerHaptic()}
-                        className={`w-12 h-7 rounded-full p-1 transition-colors duration-300 ${isPro && item.active ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800'}`}
-                    >
-                        <motion.div 
-                            animate={{ x: isPro && item.active ? 20 : 0 }}
-                            className={`w-5 h-5 rounded-full shadow-md ${isPro && item.active ? 'bg-white' : 'bg-white dark:bg-zinc-600'}`}
-                        />
-                    </button>
-                </motion.div>
-            ))}
+                    <div>
+                        <h3 className="text-zinc-900 dark:text-white font-medium text-[16px] mb-0.5">Repeat Callers</h3>
+                        <p className="text-xs text-zinc-500">Second call within 3 minutes</p>
+                    </div>
+                </div>
+                <button 
+                    onClick={() => toggleSetting('repeatCallers')}
+                    className={`w-12 h-7 rounded-full p-1 transition-colors duration-300 ${settings.repeatCallers ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800'}`}
+                >
+                    <motion.div 
+                        animate={{ x: settings.repeatCallers ? 20 : 0 }}
+                        className={`w-5 h-5 rounded-full shadow-md ${settings.repeatCallers ? 'bg-white' : 'bg-white dark:bg-zinc-600'}`}
+                    />
+                </button>
+            </motion.div>
+
+            <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white dark:bg-[#121212] rounded-[28px] p-5 flex items-center justify-between border border-zinc-200 dark:border-white/5 active:scale-[0.99] transition-transform shadow-sm dark:shadow-none"
+            >
+                <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-[18px] ${settings.mediaSounds ? 'bg-amber-500' : 'bg-zinc-100 dark:bg-[#1C1C1E]'} flex items-center justify-center transition-colors duration-300 shadow-inner`}>
+                        <BellRing size={22} className={settings.mediaSounds ? 'text-white' : 'text-zinc-400 dark:text-zinc-600'} strokeWidth={1.5} />
+                    </div>
+                    <div>
+                        <h3 className="text-zinc-900 dark:text-white font-medium text-[16px] mb-0.5">Media Sounds</h3>
+                        <p className="text-xs text-zinc-500">Videos, Music, Games</p>
+                    </div>
+                </div>
+                <button 
+                    onClick={() => toggleSetting('mediaSounds')}
+                    className={`w-12 h-7 rounded-full p-1 transition-colors duration-300 ${settings.mediaSounds ? 'bg-indigo-600' : 'bg-zinc-200 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800'}`}
+                >
+                    <motion.div 
+                        animate={{ x: settings.mediaSounds ? 20 : 0 }}
+                        className={`w-5 h-5 rounded-full shadow-md ${settings.mediaSounds ? 'bg-white' : 'bg-white dark:bg-zinc-600'}`}
+                    />
+                </button>
+            </motion.div>
         </div>
       </div>
 
